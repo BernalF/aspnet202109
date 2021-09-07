@@ -2,13 +2,11 @@
 Material relacionado con el curso de ASP.NET Core MVC impartido en UCenfotec (modalidad virtual) en Setiembre 2021.
 
 ### Requerimientos de software
-1.	Requisitos mínimos del hardware que ocupamos. 
+1.	Requisitos mínimos del hardware que ocupamos.<br/> 
 	https://docs.microsoft.com/en-us/visualstudio/releases/2019/system-requirements
 	
-2.	Última versión del Microsoft .NET Core SDK
-	https://www.microsoft.com/net/download/windows,  el de 64bits aquí, 
-	https://dotnet.microsoft.com/download/thank-you/dotnet-sdk-2.2.402-windows-x64-installer
-	
+2.	Última versión del Microsoft .NET Core SDK https://www.microsoft.com/net/download/windows, usar el de 64bits. 
+		
 	Utilizar el Windows Installer de acuerdo con la versión de Windows que se esté utilizando.
 	Se hace efectuar una ejecución inicial para descargar los paquetes iniciales. 
 	Estos pasos crean una pequeña aplicación de línea de comandos que imprime la palabra “Hello World” en la consola. 
@@ -25,19 +23,19 @@ Material relacionado con el curso de ASP.NET Core MVC impartido en UCenfotec (mo
 	dotnet build<br/>
 	dotnet run
 
-3.	Última versión del .NET Core Hosting Bundle 
+3.	Última versión del .NET Core Hosting Bundle<br/> 
 	https://dotnet.microsoft.com/download/dotnet/thank-you/runtime-aspnetcore-5.0.9-windows-hosting-bundle-installer
 
-4.	Microsoft Visual Studio Code 
+4.	Microsoft Visual Studio Code<br/> 
 	https://code.visualstudio.com/
 	Instalar o actualizar a la última versión.
 	
-5.	Microsoft SQL Server 2008 R2 o superior. 
+5.	Microsoft SQL Server 2008 R2 o superior.<br/> 
 	https://www.microsoft.com/en-us/sql-server/sql-server-downloads
 	Se acostumbra a utilizar la edición Express, en SQL Server 2017 para desarrollo es posible utilizar la edición Developer.	
 	
-6.	Microsoft Visual Studio 2019 (edición Community o superior) 
-	https://www.visualstudio.com/downloads/
+6.	Microsoft Visual Studio 2019 (edición Community o superior)<br/>
+	https://www.visualstudio.com/downloads/<br/>
 	https://docs.microsoft.com/en-us/visualstudio/install/install-visual-studio?view=vs-2019#install-workloads
 	
 	Aquí se documenta como obtener los instaladores para la instalación local, 
