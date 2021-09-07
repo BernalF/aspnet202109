@@ -15,18 +15,18 @@ Material relacionado con el curso de ASP.NET Core MVC impartido en UCenfotec (mo
 	
 	Ejecutar desde la línea de comandos: 
 	
-	mkdir t1
-	cd t1
-	dotnet new console 
+	mkdir t1<br/>
+	cd t1<br/>
+	dotnet new console
 
 	En este paso puede aparecer un mensaje que señala que se están descargando los paquetes iniciales de .NET Core. 
 	Esperar a que se complete la descarga.
 		
-	dotnet build
+	dotnet build<br/>
 	dotnet run
 
 3.	Última versión del .NET Core Hosting Bundle 
-	https://dotnet.microsoft.com/download/thank-you/dotnet-runtime-2.2.7-windows-hosting-bundle-installer
+	https://dotnet.microsoft.com/download/dotnet/thank-you/runtime-aspnetcore-5.0.9-windows-hosting-bundle-installer
 
 4.	Microsoft Visual Studio Code 
 	https://code.visualstudio.com/
@@ -78,16 +78,7 @@ Material relacionado con el curso de ASP.NET Core MVC impartido en UCenfotec (mo
 10. Postman
 	https://www.getpostman.com/apps	
 	
-De ser posible efectuar la instalación de las versiones del software con el idioma inglés, para unificar con la 
-configuración utilizada por el profesor.
-
-
-* Microsoft .NET Core, https://dot.net, Instalar el SDK para Windows
-* Microsoft Visual Studio Code, https://code.visualstudio.com
-* Microsoft Visual Studio 2019, https://visualstudio.microsoft.com, Instalar los Workloads: ASP.<span></span>NET and web development, y .NET Core cross-platform development
-* Microsoft SQL Server (Edición Express), https://www.microsoft.com/en-us/sql-server/sql-server-downloads
-
-
+De ser posible efectuar la instalación de las versiones del software con el idioma inglés, para unificar con la configuración utilizada por el profesor.
 
 ### Bases de datos de ejemplo
 * https://github.com/Microsoft/sql-server-samples/tree/master/samples/databases/northwind-pubs
