@@ -7,8 +7,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using WA11;
 
-namespace WA1
+namespace WA11
 {
     public class Startup
     {
@@ -27,15 +28,15 @@ namespace WA1
             }
 
             app.UseRouting();
+            app.UseMyMiddleware();
 
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapGet("/", async context =>
-                {
-                    context.Response.ContentType = "text/html";
-                    await context.Response.WriteAsync("<strong>Hello World!</strong>");
-                });
-            });
+            //app.UseEndpoints(endpoints =>
+            //{
+            //    endpoints.MapGet("/", async context =>
+            //    {
+            //        await context.Response.WriteAsync("Hello World!");
+            //    });
+            //});
         }
     }
 }
