@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace WA1
+namespace WA12
 {
     public class Startup
     {
@@ -28,14 +28,16 @@ namespace WA1
 
             app.UseRouting();
 
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapGet("/", async context =>
-                {
-                    context.Response.ContentType = "text/html";
-                    await context.Response.WriteAsync("<strong>Hello World!</strong>");
-                });
-            });
+            #region Custom default
+            //DefaultFilesOptions options = new DefaultFilesOptions();
+            //System.Diagnostics.Debug.WriteLine(options.DefaultFileNames.Aggregate("", (result, next) => { return $"{result}, {next}"; }));
+            //options.DefaultFileNames.Clear();
+            //options.DefaultFileNames.Add("main.html");
+            //app.UseDefaultFiles(options);
+            #endregion
+
+            app.UseDefaultFiles();
+            app.UseStaticFiles();
         }
     }
 }
