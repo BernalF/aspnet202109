@@ -1,0 +1,29 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<form>
+    <input type="search" name="filter" />
+    <button type="submit">Search</button>
+</form>
+
+<form method="post">
+    <input asp-for="Filter" placeholder="Type filter ..." class="form-control" />
+    <button type="submit" class="btn btn-primary">Search</button>
+</form>
+
+@if (Model.Products.Count > 0)
+{
+    <table class="table table-striped">
+        @foreach (var p in Model.Products)
+        {
+            <tr>
+                <td>@p.ProductId</td>
+                <td>@p.ProductName</td>
+                <td>@p.UnitPrice</td>
+            </tr>
+        }
+    </table>
+}
