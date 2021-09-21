@@ -1,12 +1,12 @@
 ﻿using System;
 using CA40.Data;
 using System.Linq;
+using System.Linq.Dynamic.Core;
+using System.Xml.Linq;
 using Microsoft.Extensions.Configuration;
 using System.IO;
 using Microsoft.EntityFrameworkCore;
-using System.Linq.Dynamic.Core;
 using System.Collections.Generic;
-using System.Xml.Linq;
 using System.Transactions;
 using Microsoft.Data.SqlClient;
 using System.Data;
@@ -69,12 +69,12 @@ namespace CA40
                             Transactions();
                             break;
                         case 10:
-                            Console.WriteLine("StoreProcedures");
-                            StoreProcedures();
-                            break;
-                        case 11:
                             Console.WriteLine("RawSQL");
                             RawSQL();
+                            break;
+                        case 11:
+                            Console.WriteLine("StoreProcedures");
+                            StoreProcedures();
                             break;
                         case 12:
                             Console.WriteLine("RawSQLClient");
@@ -275,20 +275,17 @@ namespace CA40
                 }
 
                 var q6 = from c in db.Customers
-                         orderby c.CompanyName, c.ContactTitle,
-                         c.ContactName
+                         orderby c.CompanyName, c.ContactTitle, c.ContactName
                          select c;
+                var t0 = q6.First();
 
-                var q6x = db.Customers.OrderBy(c =>
-                        new
-                        {
-                            c.CompanyName,
-                            c.ContactTitle
-                        }).
-                    ThenBy(c => c.ContactName);
+                //var q6x1 = db.Customers.OrderBy(c => new { c.CompanyName, c.ContactTitle });
+
+                var q6x = db.Customers.OrderBy(c => c.CompanyName).OrderBy(c => c.ContactTitle ).ThenBy(c => c.ContactName);
+                var t1 = q6x.First();
 
                 Console.Clear();
-                foreach (var item in q6)
+                foreach (var item in q6x)
                 {
                     Console.WriteLine($"{item.CompanyName}, {item.Country}");
                 }
@@ -494,7 +491,43 @@ namespace CA40
                    Max(od => od.Quantity * od.UnitPrice);
             }
         }
+        static void LazyLoading()
+        {
+            // Lazy Loading
+            using (NWContext db = new NWContext())
+            {
+                db.ChangeTracker.LazyLoadingEnabled = false;
+                //bool isLazy = true;
+                //db.ChangeTracker.LazyLoadingEnabled = isLazy; // default = true
 
+                // .Include(c=>c.Orders). // Eager Loading
+                var customers = db.Customers.
+                    OrderBy(c => c.CustomerId);
+
+                foreach (var c in customers.ToList())
+                {
+                    Console.WriteLine($"{c.CustomerId}, {c.ContactName}");
+
+                    //if (!isLazy)
+                    //{
+                    //    db.Entry(c).Collection(o => o.Orders).Load();
+                    //}
+
+                    Console.WriteLine($"Número de Órdenes: {c.Orders.Count}");
+                }
+
+                foreach (var o in db.Orders)
+                {
+                    //if (!isLazy)
+                    //{
+                    //    db.Entry(o).Reference(c => c.Customer).Load();
+                    //}
+
+                    Console.WriteLine(o.Customer.ContactName);
+                    Console.WriteLine($"{o.OrderId}, {o.OrderDate}");
+                }
+            }
+        }
         static void EagerLoading()
         {
             // Eager Loading
@@ -530,7 +563,7 @@ namespace CA40
                 //               
                 //Include("CustomerDemographics")
 
-                foreach (var c in customersOrders2x)
+                foreach (var c in customersOrders2)
                 {
                     Console.WriteLine($"{c.CustomerId}, {c.ContactName}");
                     foreach (var o in c.Orders)
@@ -542,44 +575,6 @@ namespace CA40
                             Console.WriteLine($"{od.ProductId}, {od.Quantity}");
                         }
                     }
-                }
-            }
-        }
-
-        static void LazyLoading()
-        {
-            // Lazy Loading
-            using (NWContext db = new NWContext())
-            {
-                //db.ChangeTracker.LazyLoadingEnabled = false;
-                //bool isLazy = true;
-                //db.ChangeTracker.LazyLoadingEnabled = isLazy; // default = true
-
-                // .Include(c=>c.Orders). // Eager Loading
-                var customers = db.Customers.
-                    OrderBy(c => c.CustomerId);
-
-                foreach (var c in customers.ToList())
-                {
-                    Console.WriteLine($"{c.CustomerId}, {c.ContactName}");
-
-                    //if (!isLazy)
-                    //{
-                    //    db.Entry(c).Collection(o => o.Orders).Load();
-                    //}
-
-                    Console.WriteLine($"Número de Órdenes: {c.Orders.Count}");
-                }
-
-                foreach (var o in db.Orders)
-                {
-                    //if (!isLazy)
-                    //{
-                    //    db.Entry(o).Reference(c => c.Customer).Load();
-                    //}
-
-                    Console.WriteLine(o.Customer.ContactName);
-                    Console.WriteLine($"{o.OrderId}, {o.OrderDate}");
                 }
             }
         }
@@ -717,22 +712,6 @@ namespace CA40
                 ts.Complete();
             }
         }
-
-        static void StoreProcedures()
-        {
-            using (var db = new NWContext())
-            {
-                var inicio = new DateTime(1997, 1, 1);
-                var fin = DateTime.Now;
-                var sales = db.SalesByYear(inicio, fin);
-
-                foreach (var s in sales)
-                {
-                    Console.WriteLine($"{s.OrderID}\t{s.ShippedDate?.ToShortDateString()}\t{s.Subtotal}\t{s.Year}");
-                }
-            }
-        }
-
         static void RawSQL()
         {
             using (var db = new NWContext())
@@ -757,7 +736,21 @@ namespace CA40
                         FROM[dbo].[Products] WHERE [ProductID] = @filter", pFilter);
 
                 // Store Procedure
-                //var blogs = db.Products.FromSqlRaw("EXECUTE dbo.GetMostPopularBlogs").ToList();
+                //var blogs = db.Products.FromSqlRaw("EXECUTE dbo.GetMostPopularProducts").ToList();
+            }
+        }
+        static void StoreProcedures()
+        {
+            using (var db = new NWContext())
+            {
+                var inicio = new DateTime(1997, 1, 1);
+                var fin = DateTime.Now;
+                var sales = db.SalesByYear(inicio, fin);
+
+                foreach (var s in sales)
+                {
+                    Console.WriteLine($"{s.OrderID}\t{s.ShippedDate?.ToShortDateString()}\t{s.Subtotal}\t{s.Year}");
+                }
             }
         }
 
@@ -810,5 +803,10 @@ namespace CA40
             }
         }
         #endregion
+    }
+
+    public class MiGrupo : List<Product>
+    {
+        public Tuple<int, string> Llave { get; set; }
     }
 }
