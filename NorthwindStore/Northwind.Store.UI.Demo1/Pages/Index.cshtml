@@ -1,0 +1,33 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Lab #1</h1>
+    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+</div>
+
+@if (Model.Customers.Count > 0)
+{
+    <table class="table">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">CompanyName</th>
+                <th scope="col">ContactName</th>
+                <th scope="col">Country</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var p in Model.Customers)
+        {
+            <tr>
+                <td>@p.CompanyName</td>
+                <td>@p.ContactName</td>
+                <td>@p.Country</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}

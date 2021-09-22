@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Northwind.Store.Data\Northwind.Store.Data.csproj" />
+    <ProjectReference Include="..\Northwind.Store.Model\Northwind.Store.Model.csproj" />
+  </ItemGroup>
+
+</Project>
