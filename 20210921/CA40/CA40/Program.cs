@@ -21,7 +21,7 @@ namespace CA40
             string lectura = "";
             do
             {
-                Console.WriteLine("Seleccione una opción:\n1. Basic\n2. CRUD\n3. LINQ To Entities\n4. Lazy Loading\n5. Eager Loading\n6. LINQ Dynamic\n7. LINQ To XML\n8. PLINQ\n9. Transactions\n10. Store Procedures\n11. Raw SQL\n12. Raw SQL Client (ADO.NET)\n");
+                Console.WriteLine("Seleccione una opción:\n1. Basic\n2. CRUD\n3. LINQ To Entities\n4. Lazy Loading\n5. Eager Loading\n6. LINQ Dynamic\n7. LINQ To XML\n8. PLINQ\n9. Transactions\n10. Raw SQL\n11. Store Procedures\n12. Raw SQL Client (ADO.NET)\n");
 
                 lectura = Console.ReadLine();
 
@@ -146,6 +146,7 @@ namespace CA40
 
         private static void CRUD()
         {
+            //using (var ts = new TransactionScope())
             using (var db = new NWContext())
             {
                 int lastId = db.Products.Max(p => p.ProductId);
@@ -169,7 +170,7 @@ namespace CA40
                 db.SaveChanges();
 
                 //db.Remove(np);
-                db.Products.Remove(np);
+                //db.Products.Remove(np);
                 db.SaveChanges();
 
                 foreach (var p in db.Products.Include(p => p.Category))
@@ -180,6 +181,8 @@ namespace CA40
                 Console.WriteLine($"Total de productos: {db.Products.Count()}");
                 Console.WriteLine($"Total de productos, inventario > 100: {db.Products.Count(p => p.UnitsInStock > 100)}");
                 Console.WriteLine($"Total de productos, proveedores de Québec: {db.Products.Count(p => p.Supplier.Region == "Québec")}");
+
+                //ts.Complete();
 
                 Console.ReadLine();
             }
@@ -673,9 +676,10 @@ namespace CA40
         {
             using (var db = new NWContext())
             {
-                var tran = db.Database.BeginTransaction(System.Data.IsolationLevel.ReadUncommitted);
+                var tran = db.Database.BeginTransaction(System.Data.IsolationLevel.ReadCommitted);
                 try
                 {
+                    db.SaveChanges();
                     // Acciones
                     tran.Commit();
                 }
@@ -728,7 +732,7 @@ namespace CA40
                 var filter = 1;
                 var products0 = db.Products.FromSqlInterpolated(@$"SELECT [ProductID],[ProductName],[SupplierID],[CategoryID]
                         ,[QuantityPerUnit],[UnitPrice],[UnitsInStock],[UnitsOnOrder],[ReorderLevel],[Discontinued]
-                        FROM[dbo].[Products] WHERE [ProductID] = {filter}");
+                        FROM[dbo].[Products] WHERE [ProductID] = {filter}").Include("Supplier");
 
                 var pFilter = new SqlParameter("filter", filter);
                 var products1 = db.Products.FromSqlRaw(@$"SELECT [ProductID],[ProductName],[SupplierID],[CategoryID]
