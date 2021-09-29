@@ -18,9 +18,25 @@ namespace WA50.Controllers
             _logger = logger;
         }
 
-        public IActionResult Index()
+        /// <summary>
+        /// Binding
+        /// - Form fields
+        /// - The request body (JSON)*
+        /// - Route data
+        /// - Query string parameters (?filter=queso)
+        /// - Uploaded files
+        /// </summary>
+        /// <returns></returns>
+        public IActionResult Index(string filter)
         {
-            return View();
+            IEnumerable<Northwind.Store.Model.Product> data;
+
+            using (var db = new Northwind.Store.Data.NWContext())
+            {
+                data = db.Products.Where(p => p.ProductName.Contains(filter)).ToList();
+            }
+
+            return View(data);
         }
 
         public IActionResult Privacy()
