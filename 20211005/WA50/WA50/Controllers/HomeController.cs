@@ -36,6 +36,9 @@ namespace WA50.Controllers
                 data = db.Products.Where(p => p.ProductName.Contains(filter)).ToList();
             }
 
+            //ViewData["products"] = data;
+            ViewBag.products = data;
+
             return View(data);
         }
 
