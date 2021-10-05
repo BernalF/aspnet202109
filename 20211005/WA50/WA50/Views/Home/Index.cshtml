@@ -1,35 +1,81 @@
-﻿@using Northwind.Store.Model
-@model IEnumerable<Northwind.Store.Model.Product>
-@{
-    ViewData["Title"] = "Home Page";
-}
-
-<h1>Products</h1>
-
-<a asp-action="Index" asp-route-filter="queso">Queso</a>
-
-<form asp-action="Index">
-    <input name="filter" type="search" class="form-control" />
-</form>
-
-@*<a href="/Home/Index?filter=queso">Queso</a>*@
-
-@*<form method="post">
-    <input name="filter" type="search" class="form-control"/>
-    </form>*@
+﻿@model IEnumerable<Northwind.Store.Model.Product>
 
 @{
-    //var products = Model;
-    //var products = (IEnumerable<Product>)ViewData["products"];
-    var products = (IEnumerable<Product>)ViewBag.products;
-
-    if (products != null && products.Any())
-    {
-        <table class="table">
-            @foreach (var p in products)
-            {
-                <tr><td>@p.ProductName</td></tr>
-            }
-        </table>
-    }
+    ViewData["Title"] = "Index";
 }
+
+<h1>Index</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.ProductId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ProductName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SupplierId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CategoryId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.QuantityPerUnit)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UnitPrice)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UnitsInStock)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UnitsOnOrder)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ReorderLevel)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Discontinued)
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ProductId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ProductName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.SupplierId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CategoryId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.QuantityPerUnit)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UnitPrice)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UnitsInStock)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UnitsOnOrder)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ReorderLevel)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Discontinued)
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
