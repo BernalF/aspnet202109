@@ -27,7 +27,7 @@ namespace WA50.Controllers
         {
             using (var db = new Northwind.Store.Data.NWContext())
             {
-                vm.Products = db.Products.ToList();
+                vm.Products = db.Products.Where(p => p.ProductName.Contains(vm.Filter)).ToList();
             }
 
             return View(vm);
