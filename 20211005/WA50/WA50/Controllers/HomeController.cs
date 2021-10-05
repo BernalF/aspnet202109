@@ -19,15 +19,33 @@ namespace WA50.Controllers
         }
 
         /// <summary>
+        /// MVVM = ModelViewViewModel
+        /// </summary>
+        /// <returns></returns>
+        public IActionResult Index()
+        {
+            IEnumerable<Northwind.Store.Model.Product> data;
+
+            using (var db = new Northwind.Store.Data.NWContext())
+            {
+                data = db.Products.ToList();
+            }
+
+            return View(data);
+        }
+
+        /// <summary>
         /// Binding
         /// - Form fields
         /// - The request body (JSON)*
         /// - Route data
         /// - Query string parameters (?filter=queso)
         /// - Uploaded files
+        /// [FromQuery], ...
         /// </summary>
         /// <returns></returns>
-        public IActionResult Index(string filter)
+        //[HttpGet]
+        public IActionResult IndexOLD(string filter)
         {
             IEnumerable<Northwind.Store.Model.Product> data;
 

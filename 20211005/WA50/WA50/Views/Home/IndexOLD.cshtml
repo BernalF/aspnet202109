@@ -1,0 +1,35 @@
+﻿@using Northwind.Store.Model
+@model IEnumerable<Northwind.Store.Model.Product>
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<h1>Products</h1>
+
+<a asp-action="Index" asp-route-filter="queso">Queso</a>
+
+<form asp-action="Index">
+    <input name="filter" type="search" class="form-control" />
+</form>
+
+@*<a href="/Home/Index?filter=queso">Queso</a>*@
+
+@*<form method="post">
+    <input name="filter" type="search" class="form-control"/>
+    </form>*@
+
+@{
+    //var products = Model;
+    //var products = (IEnumerable<Product>)ViewData["products"];
+    var products = (IEnumerable<Product>)ViewBag.products;
+
+    if (products != null && products.Any())
+    {
+        <table class="table">
+            @foreach (var p in products)
+            {
+                <tr><td>@p.ProductName</td></tr>
+            }
+        </table>
+    }
+}
