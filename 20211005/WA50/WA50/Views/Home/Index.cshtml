@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Northwind.Store.Model.Product>
+﻿@model HomeIndexViewModel
 
 @{
     ViewData["Title"] = "Index";
@@ -6,43 +6,47 @@
 
 <h1>Index</h1>
 
+@{
+    var ps = Model.Products;
+}
+
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.ProductId)
+                @Html.DisplayNameFor(model => model.Products[0].ProductId)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.ProductName)
+                @Html.DisplayNameFor(model => model.Products[0].ProductName)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.SupplierId)
+                @Html.DisplayNameFor(model => model.Products[0].SupplierId)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.CategoryId)
+                @Html.DisplayNameFor(model => model.Products[0].CategoryId)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.QuantityPerUnit)
+                @Html.DisplayNameFor(model => model.Products[0].QuantityPerUnit)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.UnitPrice)
+                @Html.DisplayNameFor(model => model.Products[0].UnitPrice)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.UnitsInStock)
+                @Html.DisplayNameFor(model => model.Products[0].UnitsInStock)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.UnitsOnOrder)
+                @Html.DisplayNameFor(model => model.Products[0].UnitsOnOrder)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.ReorderLevel)
+                @Html.DisplayNameFor(model => model.Products[0].ReorderLevel)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Discontinued)
+                @Html.DisplayNameFor(model => model.Products[0].Discontinued)
             </th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
+        @foreach (var item in ps)
         {
             <tr>
                 <td>

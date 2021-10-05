@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using WA50.Models;
+using WA50.ViewModels;
 
 namespace WA50.Controllers
 {
@@ -22,16 +23,14 @@ namespace WA50.Controllers
         /// MVVM = ModelViewViewModel
         /// </summary>
         /// <returns></returns>
-        public IActionResult Index()
+        public IActionResult Index(HomeIndexViewModel vm)
         {
-            IEnumerable<Northwind.Store.Model.Product> data;
-
             using (var db = new Northwind.Store.Data.NWContext())
             {
-                data = db.Products.ToList();
+                vm.Products = db.Products.ToList();
             }
 
-            return View(data);
+            return View(vm);
         }
 
         /// <summary>
