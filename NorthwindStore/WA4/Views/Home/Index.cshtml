@@ -1,0 +1,99 @@
+﻿@model IEnumerable<CategoryProductsViewModel>
+@using WA4.Helpers.HTML
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+</div>
+
+<h1>Index</h1>
+
+<form asp-action="Index">
+    <div class="form-group">
+        <input type="search" class="form-control" name="filter"
+               placeholder="Search filter ..." value="@ViewBag.filter">
+    </div>
+    <button type="submit" class="btn btn-primary">Search</button>
+</form>
+
+<div class="row">
+    <div class="col-4">
+        <a class="btn btn-outline-primary"
+           ajax="true" ajax-url="/Home/IndexPartial/1" ajax-target="#demo" ajax-mode="after">
+            Get Detail
+        </a>
+    </div>
+    <div class="col-8">
+        <form class="form-inline" ajax="true" ajax-method="post"
+              ajax-url="/Home/IndexViewComponent" ajax-target="#demo"
+              ajax-failure="productAjaxFailure">
+            <div class="form-group">
+                <label>Product ID</label>
+                <input type="text" class="form-control" name="id" placeholder="Type product ID">
+            </div>
+            <button type="submit" class="btn btn-primary">Get Detail</button>
+        </form>
+        <script>
+            function productAjaxFailure(xhr) {
+                if (xhr.status === 404) {
+                    alert('Product not found!');
+                }
+            }
+        </script>
+    </div>
+</div>
+
+<table class="table table-bordered table-striped">
+    <tbody id="demo"></tbody>
+</table>
+
+<div class="row">
+    <div class="col-12">
+        <h2>Products</h2>
+
+        @foreach (var c in Model)
+        {
+            <section>
+                <h3>@c.CategoryName</h3>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>QuantityPerUnit</th>
+                            <th>Price</th>
+                            <th>Stock</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var p in c.Items)
+                        {
+                            @await Html.PartialAsync("ProductPartial", p)
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="4">
+                                Items<span class="badge"> @c.Items.Count</span>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </section>
+        }
+
+    </div>
+</div>
+
+
+
+@section scripts {
+    <environment names="Development">
+        <script src="~/lib/jquery-ajax-unobtrusive/dist/jquery.unobtrusive-ajax.js"></script>
+    </environment>
+    <environment names="Production">
+        <script src="~/lib/jquery-ajax-unobtrusive/dist/jquery.unobtrusive-ajax.min.js"></script>
+    </environment>
+}
