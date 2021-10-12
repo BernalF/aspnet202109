@@ -52,5 +52,5 @@ Area
     [Area("Admin")]
 
 ---------------------------------------------------------------------------------------
-dotnet tool install -g dotnet-aspnet-codegenerator
-			dotnet aspnet-codegenerator --help
+	* dotnet tool install -g dotnet-aspnet-codegenerator
+	* dotnet aspnet-codegenerator --help
