@@ -31,8 +31,8 @@
 
 4. Generar la migración y aplicarla
 
-dotnet ef migrations add IdentityNew -c ApplicationDbContext
-dotnet ef database update -c ApplicationDbContext
+	dotnet ef migrations add IdentityNew -c ApplicationDbContext
+	dotnet ef database update -c ApplicationDbContext
 
 ---------------------------------------------------------------------------------------
 Area
