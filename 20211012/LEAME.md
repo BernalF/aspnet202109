@@ -1,14 +1,14 @@
 0. Verificar la instalación del comando EF
-* dotnet tool install --global dotnet-ef
+	
 
 1. Quitar la migración
 
-* dotnet ef migrations remove -c ApplicationDbContext			
-* dotnet ef migrations add IdentityNew -c ApplicationDbContext
-* dotnet ef database update -c ApplicationDbContext
-* dotnet ef migrations remove -c ApplicationDbContext
-* dotnet ef migrations add IdentityCustom -c ApplicationDbContext
-* dotnet ef database update -c ApplicationDbContext
+	* dotnet ef migrations remove -c ApplicationDbContext			
+	* dotnet ef migrations add IdentityNew -c ApplicationDbContext
+	* dotnet ef database update -c ApplicationDbContext
+	* dotnet ef migrations remove -c ApplicationDbContext
+	* dotnet ef migrations add IdentityCustom -c ApplicationDbContext
+	* dotnet ef database update -c ApplicationDbContext
 
 2. Modificar el conexión y el Startup
 
