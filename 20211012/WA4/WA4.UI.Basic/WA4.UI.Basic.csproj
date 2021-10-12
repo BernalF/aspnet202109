@@ -1,12 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
   </PropertyGroup>
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\proyecto\NorthwindStore\Northwind.Store.Data\Northwind.Store.Data.csproj" />
+    <ProjectReference Include="..\..\..\proyecto\NorthwindStore\Northwind.Store.Model\Northwind.Store.Model.csproj" />
   </ItemGroup>
 
 
