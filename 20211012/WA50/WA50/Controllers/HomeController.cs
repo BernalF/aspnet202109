@@ -7,6 +7,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using WA50.Models;
 using WA50.ViewModels;
+using WA50.Extensions;
+using X.PagedList;
 
 namespace WA50.Controllers
 {
@@ -23,11 +25,22 @@ namespace WA50.Controllers
         /// MVVM = ModelViewViewModel
         /// </summary>
         /// <returns></returns>
-        public IActionResult Index(HomeIndexViewModel vm)
+        public IActionResult Index(HomeIndexViewModel vm, int? page)
         {
+            if (vm.Filter == null)
+            {
+                vm = HttpContext.Session.GetObject<HomeIndexViewModel>("vm") ?? 
+                    new HomeIndexViewModel();
+            }
+            else
+            {
+                HttpContext.Session.SetObject<HomeIndexViewModel>("vm", vm);
+            }
+
             using (var db = new Northwind.Store.Data.NWContext())
             {
-                vm.Products = db.Products.Where(p => p.ProductName.Contains(vm.Filter)).ToList();
+                vm.Products = db.Products.Where(p => p.ProductName.Contains(vm.Filter)).
+                    ToPagedList(page ?? 1, 10);
             }
 
             return View(vm);
