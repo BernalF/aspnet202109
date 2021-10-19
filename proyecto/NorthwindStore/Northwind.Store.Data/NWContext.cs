@@ -9,9 +9,9 @@ namespace Northwind.Store.Data
 {
     public partial class NWContext : DbContext
     {
-        public NWContext()
-        {
-        }
+        //public NWContext()
+        //{
+        //}
 
         public NWContext(DbContextOptions<NWContext> options)
             : base(options)
