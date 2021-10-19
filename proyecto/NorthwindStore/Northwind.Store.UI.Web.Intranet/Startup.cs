@@ -28,9 +28,12 @@ namespace Northwind.Store.UI.Web.Intranet
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<NWContext>(options =>
-                options.UseSqlServer(
-                    Configuration.GetConnectionString("NW")));
+            //services.AddDbContext<NWContext>(options =>
+            //    options.UseSqlServer(
+            //        Configuration.GetConnectionString("NW")));
+
+            services.AddDbContextPool<NWContext>(options => 
+                options.UseSqlServer(Configuration.GetConnectionString("NW")));
 
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(

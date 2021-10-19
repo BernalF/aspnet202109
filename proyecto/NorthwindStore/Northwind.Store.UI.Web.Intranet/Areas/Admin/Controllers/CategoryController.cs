@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -57,10 +59,18 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("CategoryId,CategoryName,Description,Picture")] Category category)
+        public async Task<IActionResult> Create([Bind("CategoryId,CategoryName,Description,Picture")] Category category, IFormFile picture)
         {
             if (ModelState.IsValid)
             {
+                if (picture != null)
+                {
+                    // using System.IO;
+                    using MemoryStream ms = new();
+                    picture.CopyTo(ms);
+                    category.Picture = ms.ToArray();
+                }
+
                 _context.Add(category);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -151,6 +161,26 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
         private bool CategoryExists(int id)
         {
             return _context.Categories.Any(e => e.CategoryId == id);
+        }
+
+        public async Task<FileStreamResult> ReadImage(int id)
+        {
+            FileStreamResult result = null;
+
+            var category = await _context.Categories
+                .FirstOrDefaultAsync(m => m.CategoryId == id);
+
+            if (category != null)
+            {
+                var stream = new MemoryStream(category.Picture);
+
+                if (stream != null)
+                {
+                    result = File(stream, "image/png");
+                }
+            }
+
+            return result;
         }
     }
 }
