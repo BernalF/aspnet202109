@@ -1,0 +1,119 @@
+﻿@model HomeIndexViewModel
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<form asp-action="Index">
+    <input asp-for="Filter" placeholder="Type here ..." />    
+@*    <input name="filter" type="text" value="@Model.Filter" 
+placeholder="Type here ..." /> *@
+</form>
+
+@{
+    var ps = Model.Products;
+}
+<br/>
+@*<ul class="pagination">
+    <li class="page-item">
+        <a class="page-link" href="#" aria-label="Previous">
+            <span aria-hidden="true">&laquo;</span>
+        </a>
+    </li>
+    @for (var i = 1; i <= Model.TotalPages; i++)
+    {
+        <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+            <a asp-page="/pagination" asp-route-currentpage="@i" class="page-link">@i</a>
+        </li>
+    }
+    <li class="page-item">
+        <a class="page-link" href="#" aria-label="Next">
+            <span aria-hidden="true">&raquo;</span>
+        </a>
+    </li>
+</ul>*@
+
+<ul class="pagination">  
+    @for (int i = 1; i <= Model.PageCount; i++)  
+    {  
+        <li class="@(i == Model.CurrentPage ? "page-item active" : "page-item")">  
+            <a class="page-link" href="@Url.Action("Index", new { page = i })">@i</a>  
+        </li>  
+    }  
+</ul>  
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Products[0].ProductId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Products[0].ProductName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Products[0].SupplierId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Products[0].CategoryId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Products[0].QuantityPerUnit)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Products[0].UnitPrice)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Products[0].UnitsInStock)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Products[0].UnitsOnOrder)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Products[0].ReorderLevel)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Products[0].Discontinued)
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in ps)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ProductId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ProductName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.SupplierId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CategoryId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.QuantityPerUnit)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UnitPrice)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UnitsInStock)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UnitsOnOrder)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ReorderLevel)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Discontinued)
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

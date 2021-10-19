@@ -11,9 +11,9 @@ namespace Northwind.Store.Data
 {
     public partial class NWContext : DbContext
     {
-        public NWContext()
-        {
-        }
+        //public NWContext()
+        //{
+        //}
 
         public NWContext(DbContextOptions<NWContext> options)
             : base(options)
@@ -50,20 +50,20 @@ namespace Northwind.Store.Data
         public virtual DbSet<Supplier> Suppliers { get; set; }
         public virtual DbSet<Territory> Territories { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseLazyLoadingProxies();
+        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        //{
+        //    optionsBuilder.UseLazyLoadingProxies();
 
-            if (!optionsBuilder.IsConfigured)
-            {
-                var builder = new ConfigurationBuilder()
-                    .SetBasePath(Directory.GetCurrentDirectory())
-                    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+        //    if (!optionsBuilder.IsConfigured)
+        //    {
+        //        var builder = new ConfigurationBuilder()
+        //            .SetBasePath(Directory.GetCurrentDirectory())
+        //            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
 
-                IConfigurationRoot configuration = builder.Build();
-                optionsBuilder.UseSqlServer(configuration.GetConnectionString("NW"));
-            }
-        }
+        //        IConfigurationRoot configuration = builder.Build();
+        //        optionsBuilder.UseSqlServer(configuration.GetConnectionString("NW"));
+        //    }
+        //}
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
