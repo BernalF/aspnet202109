@@ -1,8 +1,6 @@
-﻿using System.IO;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Northwind.Store.Data;
@@ -12,22 +10,22 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
 {
     [Authorize]
     [Area("Admin")]
-    public class CategoryController : Controller
+    public class SupplierController : Controller
     {
         private readonly NWContext _context;
 
-        public CategoryController(NWContext context)
+        public SupplierController(NWContext context)
         {
             _context = context;
         }
 
-        // GET: Admin/Category
+        // GET: Admin/Supplier
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Categories.ToListAsync());
+            return View(await _context.Suppliers.ToListAsync());
         }
 
-        // GET: Admin/Category/Details/5
+        // GET: Admin/Supplier/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -35,47 +33,39 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var category = await _context.Categories
-                .FirstOrDefaultAsync(m => m.CategoryId == id);
-            if (category == null)
+            var supplier = await _context.Suppliers
+                .FirstOrDefaultAsync(m => m.SupplierId == id);
+            if (supplier == null)
             {
                 return NotFound();
             }
 
-            return View(category);
+            return View(supplier);
         }
 
-        // GET: Admin/Category/Create
+        // GET: Admin/Supplier/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Admin/Category/Create
+        // POST: Admin/Supplier/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("CategoryId,CategoryName,Description,Picture")] Category category, IFormFile picture)
+        public async Task<IActionResult> Create([Bind("SupplierId,CompanyName,ContactName,ContactTitle,Address,City,Region,PostalCode,Country,Phone,Fax,HomePage")] Supplier supplier)
         {
             if (ModelState.IsValid)
             {
-                if (picture != null)
-                {
-                    // using System.IO;
-                    using MemoryStream ms = new();
-                    picture.CopyTo(ms);
-                    category.Picture = ms.ToArray();
-                }
-
-                _context.Add(category);
+                _context.Add(supplier);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(category);
+            return View(supplier);
         }
 
-        // GET: Admin/Category/Edit/5
+        // GET: Admin/Supplier/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -83,22 +73,22 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var category = await _context.Categories.FindAsync(id);
-            if (category == null)
+            var supplier = await _context.Suppliers.FindAsync(id);
+            if (supplier == null)
             {
                 return NotFound();
             }
-            return View(category);
+            return View(supplier);
         }
 
-        // POST: Admin/Category/Edit/5
+        // POST: Admin/Supplier/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("CategoryId,CategoryName,Description,Picture")] Category category)
+        public async Task<IActionResult> Edit(int id, [Bind("SupplierId,CompanyName,ContactName,ContactTitle,Address,City,Region,PostalCode,Country,Phone,Fax,HomePage")] Supplier supplier)
         {
-            if (id != category.CategoryId)
+            if (id != supplier.SupplierId)
             {
                 return NotFound();
             }
@@ -107,12 +97,12 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
             {
                 try
                 {
-                    _context.Update(category);
+                    _context.Update(supplier);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!CategoryExists(category.CategoryId))
+                    if (!SupplierExists(supplier.SupplierId))
                     {
                         return NotFound();
                     }
@@ -123,10 +113,10 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(category);
+            return View(supplier);
         }
 
-        // GET: Admin/Category/Delete/5
+        // GET: Admin/Supplier/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -134,50 +124,30 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var category = await _context.Categories
-                .FirstOrDefaultAsync(m => m.CategoryId == id);
-            if (category == null)
+            var supplier = await _context.Suppliers
+                .FirstOrDefaultAsync(m => m.SupplierId == id);
+            if (supplier == null)
             {
                 return NotFound();
             }
 
-            return View(category);
+            return View(supplier);
         }
 
-        // POST: Admin/Category/Delete/5
+        // POST: Admin/Supplier/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var category = await _context.Categories.FindAsync(id);
-            _context.Categories.Remove(category);
+            var supplier = await _context.Suppliers.FindAsync(id);
+            _context.Suppliers.Remove(supplier);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool CategoryExists(int id)
+        private bool SupplierExists(int id)
         {
-            return _context.Categories.Any(e => e.CategoryId == id);
-        }
-
-        public async Task<FileStreamResult> ReadImage(int id)
-        {
-            FileStreamResult result = null;
-
-            var category = await _context.Categories
-                .FirstOrDefaultAsync(m => m.CategoryId == id);
-
-            if (category != null)
-            {
-                var stream = new MemoryStream(category.Picture);
-
-                if (stream != null)
-                {
-                    result = File(stream, "image/png");
-                }
-            }
-
-            return result;
+            return _context.Suppliers.Any(e => e.SupplierId == id);
         }
     }
 }

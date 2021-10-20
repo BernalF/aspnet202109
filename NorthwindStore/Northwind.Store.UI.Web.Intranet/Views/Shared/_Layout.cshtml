@@ -26,14 +26,23 @@
                         </li>
                         @if (SignInManager.IsSignedIn(User))
                         {
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    Admin
-                                </a>
-                                <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                                    <a class="nav-link text-dark" asp-area="admin" asp-controller="Category" asp-action="Index">Category</a>
-                                </div>
-                            </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Admin
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                            <a class="nav-link text-dark" asp-area="admin" asp-controller="Category" asp-action="Index">Categories</a>
+                            <a class="nav-link text-dark" asp-area="admin" asp-controller="Customer" asp-action="Index">Customers</a>
+                            <a class="nav-link text-dark" asp-area="admin" asp-controller="Employee" asp-action="Index">Employees</a>
+                            <a class="nav-link text-dark" asp-area="admin" asp-controller="Product" asp-action="Index">Products</a>
+                            <a class="nav-link text-dark" asp-area="admin" asp-controller="Region" asp-action="Index">Regions</a>
+                            <a class="nav-link text-dark" asp-area="admin" asp-controller="Shipper" asp-action="Index">Shippers</a>
+                            <a class="nav-link text-dark" asp-area="admin" asp-controller="Supplier" asp-action="Index">Suppliers</a>
+                            <a class="nav-link text-dark" asp-area="admin" asp-controller="Territory" asp-action="Index">Territories</a>
+                            <a class="nav-link text-dark" asp-area="admin" asp-controller="Order" asp-action="Index">Orders</a>
+                            <a class="nav-link text-dark" asp-area="admin" asp-controller="OrderDetail" asp-action="Index">Order Details</a>
+                        </div>
+                    </li>
                         }
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>

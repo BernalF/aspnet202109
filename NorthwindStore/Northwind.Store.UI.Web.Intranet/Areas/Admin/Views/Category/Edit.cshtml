@@ -24,9 +24,13 @@
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Picture" class="control-label"></label>
-                <input asp-for="Picture" class="form-control" />
-                <span asp-validation-for="Picture" class="text-danger"></span>
+                @*<label asp-for="Picture" class="control-label"></label>*@
+                @*<input asp-for="Picture" class="form-control" />*@
+                @*<img src="data:image;base64,@System.Convert.ToBase64String(Model.Picture)" width="80" height="80" />*@
+                <img src="@Url.Action("ReadImage", new { id = Model.CategoryId })"
+                     alt="Imagen de @Model.CategoryName"  width="50" height="50"/>
+                @*<span asp-validation-for="Picture" class="text-danger"></span>*@
+
             </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />

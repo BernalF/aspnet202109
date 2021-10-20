@@ -1,8 +1,6 @@
-﻿using System.IO;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Northwind.Store.Data;
@@ -12,22 +10,22 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
 {
     [Authorize]
     [Area("Admin")]
-    public class CategoryController : Controller
+    public class RegionController : Controller
     {
         private readonly NWContext _context;
 
-        public CategoryController(NWContext context)
+        public RegionController(NWContext context)
         {
             _context = context;
         }
 
-        // GET: Admin/Category
+        // GET: Admin/Region
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Categories.ToListAsync());
+            return View(await _context.Regions.ToListAsync());
         }
 
-        // GET: Admin/Category/Details/5
+        // GET: Admin/Region/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -35,47 +33,39 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var category = await _context.Categories
-                .FirstOrDefaultAsync(m => m.CategoryId == id);
-            if (category == null)
+            var region = await _context.Regions
+                .FirstOrDefaultAsync(m => m.RegionId == id);
+            if (region == null)
             {
                 return NotFound();
             }
 
-            return View(category);
+            return View(region);
         }
 
-        // GET: Admin/Category/Create
+        // GET: Admin/Region/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Admin/Category/Create
+        // POST: Admin/Region/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("CategoryId,CategoryName,Description,Picture")] Category category, IFormFile picture)
+        public async Task<IActionResult> Create([Bind("RegionId,RegionDescription")] Region region)
         {
             if (ModelState.IsValid)
             {
-                if (picture != null)
-                {
-                    // using System.IO;
-                    using MemoryStream ms = new();
-                    picture.CopyTo(ms);
-                    category.Picture = ms.ToArray();
-                }
-
-                _context.Add(category);
+                _context.Add(region);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(category);
+            return View(region);
         }
 
-        // GET: Admin/Category/Edit/5
+        // GET: Admin/Region/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -83,22 +73,22 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var category = await _context.Categories.FindAsync(id);
-            if (category == null)
+            var region = await _context.Regions.FindAsync(id);
+            if (region == null)
             {
                 return NotFound();
             }
-            return View(category);
+            return View(region);
         }
 
-        // POST: Admin/Category/Edit/5
+        // POST: Admin/Region/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("CategoryId,CategoryName,Description,Picture")] Category category)
+        public async Task<IActionResult> Edit(int id, [Bind("RegionId,RegionDescription")] Region region)
         {
-            if (id != category.CategoryId)
+            if (id != region.RegionId)
             {
                 return NotFound();
             }
@@ -107,12 +97,12 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
             {
                 try
                 {
-                    _context.Update(category);
+                    _context.Update(region);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!CategoryExists(category.CategoryId))
+                    if (!RegionExists(region.RegionId))
                     {
                         return NotFound();
                     }
@@ -123,10 +113,10 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(category);
+            return View(region);
         }
 
-        // GET: Admin/Category/Delete/5
+        // GET: Admin/Region/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -134,50 +124,30 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var category = await _context.Categories
-                .FirstOrDefaultAsync(m => m.CategoryId == id);
-            if (category == null)
+            var region = await _context.Regions
+                .FirstOrDefaultAsync(m => m.RegionId == id);
+            if (region == null)
             {
                 return NotFound();
             }
 
-            return View(category);
+            return View(region);
         }
 
-        // POST: Admin/Category/Delete/5
+        // POST: Admin/Region/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var category = await _context.Categories.FindAsync(id);
-            _context.Categories.Remove(category);
+            var region = await _context.Regions.FindAsync(id);
+            _context.Regions.Remove(region);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool CategoryExists(int id)
+        private bool RegionExists(int id)
         {
-            return _context.Categories.Any(e => e.CategoryId == id);
-        }
-
-        public async Task<FileStreamResult> ReadImage(int id)
-        {
-            FileStreamResult result = null;
-
-            var category = await _context.Categories
-                .FirstOrDefaultAsync(m => m.CategoryId == id);
-
-            if (category != null)
-            {
-                var stream = new MemoryStream(category.Picture);
-
-                if (stream != null)
-                {
-                    result = File(stream, "image/png");
-                }
-            }
-
-            return result;
+            return _context.Regions.Any(e => e.RegionId == id);
         }
     }
 }

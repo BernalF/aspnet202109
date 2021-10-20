@@ -1,9 +1,8 @@
-﻿using System.IO;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Northwind.Store.Data;
 using Northwind.Store.Model;
@@ -12,22 +11,23 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
 {
     [Authorize]
     [Area("Admin")]
-    public class CategoryController : Controller
+    public class EmployeeController : Controller
     {
         private readonly NWContext _context;
 
-        public CategoryController(NWContext context)
+        public EmployeeController(NWContext context)
         {
             _context = context;
         }
 
-        // GET: Admin/Category
+        // GET: Admin/Employee
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Categories.ToListAsync());
+            var nWContext = _context.Employees.Include(e => e.ReportsToNavigation);
+            return View(await nWContext.ToListAsync());
         }
 
-        // GET: Admin/Category/Details/5
+        // GET: Admin/Employee/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -35,47 +35,42 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var category = await _context.Categories
-                .FirstOrDefaultAsync(m => m.CategoryId == id);
-            if (category == null)
+            var employee = await _context.Employees
+                .Include(e => e.ReportsToNavigation)
+                .FirstOrDefaultAsync(m => m.EmployeeId == id);
+            if (employee == null)
             {
                 return NotFound();
             }
 
-            return View(category);
+            return View(employee);
         }
 
-        // GET: Admin/Category/Create
+        // GET: Admin/Employee/Create
         public IActionResult Create()
         {
+            ViewData["ReportsTo"] = new SelectList(_context.Employees, "EmployeeId", "FirstName");
             return View();
         }
 
-        // POST: Admin/Category/Create
+        // POST: Admin/Employee/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("CategoryId,CategoryName,Description,Picture")] Category category, IFormFile picture)
+        public async Task<IActionResult> Create([Bind("EmployeeId,LastName,FirstName,Title,TitleOfCourtesy,BirthDate,HireDate,Address,City,Region,PostalCode,Country,HomePhone,Extension,Photo,Notes,ReportsTo,PhotoPath")] Employee employee)
         {
             if (ModelState.IsValid)
             {
-                if (picture != null)
-                {
-                    // using System.IO;
-                    using MemoryStream ms = new();
-                    picture.CopyTo(ms);
-                    category.Picture = ms.ToArray();
-                }
-
-                _context.Add(category);
+                _context.Add(employee);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(category);
+            ViewData["ReportsTo"] = new SelectList(_context.Employees, "EmployeeId", "FirstName", employee.ReportsTo);
+            return View(employee);
         }
 
-        // GET: Admin/Category/Edit/5
+        // GET: Admin/Employee/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -83,22 +78,23 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var category = await _context.Categories.FindAsync(id);
-            if (category == null)
+            var employee = await _context.Employees.FindAsync(id);
+            if (employee == null)
             {
                 return NotFound();
             }
-            return View(category);
+            ViewData["ReportsTo"] = new SelectList(_context.Employees, "EmployeeId", "FirstName", employee.ReportsTo);
+            return View(employee);
         }
 
-        // POST: Admin/Category/Edit/5
+        // POST: Admin/Employee/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("CategoryId,CategoryName,Description,Picture")] Category category)
+        public async Task<IActionResult> Edit(int id, [Bind("EmployeeId,LastName,FirstName,Title,TitleOfCourtesy,BirthDate,HireDate,Address,City,Region,PostalCode,Country,HomePhone,Extension,Photo,Notes,ReportsTo,PhotoPath")] Employee employee)
         {
-            if (id != category.CategoryId)
+            if (id != employee.EmployeeId)
             {
                 return NotFound();
             }
@@ -107,12 +103,12 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
             {
                 try
                 {
-                    _context.Update(category);
+                    _context.Update(employee);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!CategoryExists(category.CategoryId))
+                    if (!EmployeeExists(employee.EmployeeId))
                     {
                         return NotFound();
                     }
@@ -123,10 +119,11 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(category);
+            ViewData["ReportsTo"] = new SelectList(_context.Employees, "EmployeeId", "FirstName", employee.ReportsTo);
+            return View(employee);
         }
 
-        // GET: Admin/Category/Delete/5
+        // GET: Admin/Employee/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -134,50 +131,31 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var category = await _context.Categories
-                .FirstOrDefaultAsync(m => m.CategoryId == id);
-            if (category == null)
+            var employee = await _context.Employees
+                .Include(e => e.ReportsToNavigation)
+                .FirstOrDefaultAsync(m => m.EmployeeId == id);
+            if (employee == null)
             {
                 return NotFound();
             }
 
-            return View(category);
+            return View(employee);
         }
 
-        // POST: Admin/Category/Delete/5
+        // POST: Admin/Employee/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var category = await _context.Categories.FindAsync(id);
-            _context.Categories.Remove(category);
+            var employee = await _context.Employees.FindAsync(id);
+            _context.Employees.Remove(employee);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool CategoryExists(int id)
+        private bool EmployeeExists(int id)
         {
-            return _context.Categories.Any(e => e.CategoryId == id);
-        }
-
-        public async Task<FileStreamResult> ReadImage(int id)
-        {
-            FileStreamResult result = null;
-
-            var category = await _context.Categories
-                .FirstOrDefaultAsync(m => m.CategoryId == id);
-
-            if (category != null)
-            {
-                var stream = new MemoryStream(category.Picture);
-
-                if (stream != null)
-                {
-                    result = File(stream, "image/png");
-                }
-            }
-
-            return result;
+            return _context.Employees.Any(e => e.EmployeeId == id);
         }
     }
 }
