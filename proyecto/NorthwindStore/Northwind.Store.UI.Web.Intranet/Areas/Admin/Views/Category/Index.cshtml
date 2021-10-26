@@ -35,8 +35,9 @@
             </td>
             <td>
                 @*@Html.DisplayFor(modelItem => item.Picture)*@
-                <img src="@Url.Action("ReadImage", new { id = item.CategoryId })"
-                     alt="Imagen de @item.CategoryName" />
+                @*<img src="@Url.Action("ReadImage", new { id = item.CategoryId })"
+                     alt="Imagen de @item.CategoryName" />*@
+                <img src="@item.PictureBase64" />
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.CategoryId">Edit</a> |

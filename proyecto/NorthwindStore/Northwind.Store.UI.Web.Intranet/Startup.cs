@@ -56,7 +56,7 @@ namespace Northwind.Store.UI.Web.Intranet
             if (env.IsDevelopment())
             {
                 app.UseLiveReload();
-                app.UseDeveloperExceptionPage();
+                app.UseDeveloperExceptionPage();                
                 app.UseMigrationsEndPoint();
             }
             else
