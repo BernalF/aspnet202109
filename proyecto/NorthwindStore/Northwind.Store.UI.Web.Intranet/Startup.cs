@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Westwind.AspNetCore.LiveReload;
 
 namespace Northwind.Store.UI.Web.Intranet
 {
@@ -43,6 +44,9 @@ namespace Northwind.Store.UI.Web.Intranet
 
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
+
+            services.AddLiveReload();
+
             services.AddControllersWithViews();
         }
 
@@ -51,6 +55,7 @@ namespace Northwind.Store.UI.Web.Intranet
         {
             if (env.IsDevelopment())
             {
+                app.UseLiveReload();
                 app.UseDeveloperExceptionPage();
                 app.UseMigrationsEndPoint();
             }
