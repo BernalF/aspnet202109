@@ -1,0 +1,40 @@
+﻿@using X.PagedList
+@using X.PagedList.Mvc.Core
+@model IEnumerable<ToDoQuiz.Models.ToDo>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+
+
+<div id="table1">
+    <partial name="_ToDoPartial" model="@Model" />
+</div>
+
+
+@section Scripts{
+    <script>
+        $(function() {
+            function interceptPaging() {
+                $("#table1 .pagination a").click(function(event) {
+                    event.preventDefault();
+
+                    $.get($(this).attr("href"),
+                        function(d) {
+                            $("#table1").html(d);
+                            interceptPaging();
+                        });
+                });
+            }
+
+            interceptPaging();
+        });
+    </script>
+}
