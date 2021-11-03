@@ -21,11 +21,13 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
         private readonly Notifications ns = new();
         private readonly NWContext _context;
         private readonly IRepository<Category, int> _cR;
+        private readonly CategoryRepository _cR2;
 
-        public CategoryController(NWContext context, IRepository<Category, int> cR)
+        public CategoryController(NWContext context, IRepository<Category, int> cR, CategoryRepository cR2)
         {
             _context = context;
             _cR = cR;
+            _cR2 = cR2;
         }
 
         // GET: Admin/Category
@@ -82,7 +84,15 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
                 //await _context.SaveChangesAsync();
 
                 category.State = Model.ModelState.Added;
-                await _cR.Save(category);
+                await _cR.Save(category, ns);
+
+                if (ns.Count > 0)
+                {
+                    var msg = ns[0];
+                    ModelState.AddModelError("", $"{msg.Title} - {msg.Description}");
+
+                    return View(category);
+                }
 
                 return RedirectToAction(nameof(Index));
             }
@@ -184,9 +194,11 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
             //_context.Categories.Remove(category);
             //await _context.SaveChangesAsync();
 
-            var category = await _cR.Get(id);
-            category.State = Model.ModelState.Deleted;
-            await _cR.Save(category);
+            //var category = await _cR.Get(id);
+            //category.State = Model.ModelState.Deleted;
+            //await _cR.Save(category);
+
+            await _cR2.Delete(id);
 
             return RedirectToAction(nameof(Index));
         }
@@ -198,22 +210,24 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
 
         public async Task<FileStreamResult> ReadImage(int id)
         {
-            FileStreamResult result = null;
+            //FileStreamResult result = null;
 
-            var category = await _context.Categories
-                .FirstOrDefaultAsync(m => m.CategoryId == id);
+            //var category = await _context.Categories
+            //    .FirstOrDefaultAsync(m => m.CategoryId == id);
 
-            if (category != null)
-            {
-                var stream = new MemoryStream(category.Picture);
+            //if (category != null)
+            //{
+            //    var stream = new MemoryStream(category.Picture);
 
-                if (stream != null)
-                {
-                    result = File(stream, "image/png");
-                }
-            }
+            //    if (stream != null)
+            //    {
+            //        result = File(stream, "image/png");
+            //    }
+            //}
 
-            return result;
+            //return result;
+
+            return File(await _cR2.GetFileStream(id), "image/png");
         }
     }
 }

@@ -51,6 +51,7 @@ namespace Northwind.Store.UI.Web.Intranet
             services.AddControllersWithViews();
 
             services.AddTransient<IRepository<Category, int>, BaseRepository<Category, int>>();
+            services.AddTransient<CategoryRepository>();
 
             //services.AddScoped
             //services.AddTransient
