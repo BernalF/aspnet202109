@@ -33,6 +33,9 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
         // GET: Admin/Category
         public async Task<IActionResult> Index()
         {
+            var filtro = "";
+            var categories = await _cR.Find(c => c.CategoryName.Contains(filtro));
+
             //return View(await _context.Categories.ToListAsync());
             return View(await _cR.GetList());
         }
