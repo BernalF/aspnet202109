@@ -124,6 +124,9 @@ namespace Northwind.Store.Data
 
         public virtual Task<int> Delete(TK key)
         {
+            // agregar al async en la definición
+            //_db.Set<T>().Remove(await _db.FindAsync<T>(key));
+
             return Task.FromResult(0);
         }
 

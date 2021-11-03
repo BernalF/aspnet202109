@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Northwind.Store.Data;
+using Northwind.Store.Model;
 using Northwind.Store.UI.Web.Intranet.Data;
 using System;
 using System.Collections.Generic;
@@ -48,6 +49,12 @@ namespace Northwind.Store.UI.Web.Intranet
             services.AddLiveReload();
 
             services.AddControllersWithViews();
+
+            services.AddTransient<IRepository<Category, int>, BaseRepository<Category, int>>();
+
+            //services.AddScoped
+            //services.AddTransient
+            //services.AddSingleton
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
