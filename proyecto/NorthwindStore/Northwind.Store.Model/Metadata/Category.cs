@@ -11,19 +11,24 @@ namespace Northwind.Store.Model
 {
 
     [ModelMetadataType(typeof(CategoryMetadata))]
-    public partial class Category
+    public partial class Category : ModelBase
     {
         [NotMapped]
         public string PictureBase64 { 
             get 
             {
-                var base64 = Convert.ToBase64String(Picture);
-                return $"data:image/jpg;base64,{base64}";
+                var result = "";
+                if (Picture != null)
+                {
+                    var base64 = Convert.ToBase64String(Picture);
+                    result = $"data:image/jpg;base64,{base64}";
+                }
+                return result;
             } 
         }
         public class CategoryMetadata
         {
-            [StringLength(32, MinimumLength = 3, ErrorMessage = "Se requiere de {2} a {1} caracteres.")]
+            [StringLength(15, MinimumLength = 3, ErrorMessage = "Se requiere de {2} a {1} caracteres.")]
             [Required(ErrorMessage = "El {0} es requerido.")]
             [Display(Name = "Nombre")]
             public string CategoryName { get; set; }
