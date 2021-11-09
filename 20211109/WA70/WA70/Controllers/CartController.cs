@@ -20,9 +20,10 @@ namespace WA70.Controllers
         public IActionResult Index()
         {
             var productId = TempData[nameof(Product.ProductId)];
-            var productName = TempData[nameof(Product.ProductName)];
+            //var productName = TempData[nameof(Product.ProductName)];
             //TempData.Keep(nameof(Product.ProductName));
             //var productName = TempData.Peek(nameof(Product.ProductName));
+
             //var productAdded = _rs.ProductAdded;
 
             ViewBag.productAdded = _rs.ProductAdded;
@@ -36,8 +37,9 @@ namespace WA70.Controllers
 
             if (id.HasValue)
             {
-                #region Session
                 var p = _db.Products.Find(id);
+
+                #region Session
                 var cart = _ss.Cart;
 
                 cart.Items.Add(p);
@@ -46,6 +48,7 @@ namespace WA70.Controllers
                 #endregion
 
                 #region TempData
+                //TempData["ProductId"] = p.ProductId;
                 TempData[nameof(Product.ProductId)] = p.ProductId;
                 TempData[nameof(Product.ProductName)] = p.ProductName;
 
