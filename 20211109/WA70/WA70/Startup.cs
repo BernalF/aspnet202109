@@ -28,6 +28,7 @@ namespace WA70
             services.AddDbContextPool<NWContext>(options => options.UseSqlServer(Configuration.GetConnectionString("NW")));
 
             services.AddDistributedMemoryCache();
+            // SQL Server, Redis, NCache
 
             services.AddSession(options =>
             {
