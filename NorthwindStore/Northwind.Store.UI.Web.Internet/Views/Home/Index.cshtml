@@ -1,0 +1,30 @@
+﻿@using X.PagedList
+@using X.PagedList.Mvc.Core
+@model IEnumerable<Northwind.Store.Model.Product>
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+<div id="table1">
+    <partial name="_HomePartial" model="@Model" />
+</div>
+
+@section Scripts{
+    <script>
+        $(function () {
+            function interceptPaging() {
+                $("#table1 .pagination a").click(function (event) {
+                    event.preventDefault();
+
+                    $.get($(this).attr("href"),
+                        function (d) {
+                            $("#table1").html(d);
+                            interceptPaging();
+                        });
+                });
+            }
+
+            interceptPaging();
+        });
+    </script>
+}
