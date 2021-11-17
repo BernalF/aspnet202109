@@ -1,11 +1,14 @@
-﻿using System.Linq;
+﻿using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Northwind.Store.Data;
 using Northwind.Store.Model;
+using X.PagedList;
 
 namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
 {
@@ -21,10 +24,11 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
         }
 
         // GET: Admin/Product
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? page)
         {
+            var pageNumber = page ?? 1; 
             var nWContext = _context.Products.Include(p => p.Category).Include(p => p.Supplier);
-            return View(await nWContext.ToListAsync());
+            return View(await nWContext.ToPagedListAsync(pageNumber, 5));
         }
 
         // GET: Admin/Product/Details/5
@@ -60,10 +64,18 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ProductId,ProductName,SupplierId,CategoryId,QuantityPerUnit,UnitPrice,UnitsInStock,UnitsOnOrder,ReorderLevel,Discontinued")] Product product)
+        public async Task<IActionResult> Create([Bind("ProductId,ProductName,SupplierId,CategoryId,QuantityPerUnit,UnitPrice,UnitsInStock,UnitsOnOrder,ReorderLevel,Discontinued,Picture")] Product product, IFormFile picture)
         {
             if (ModelState.IsValid)
             {
+                if (picture != null)
+                {
+                    // using System.IO;
+                    using MemoryStream ms = new MemoryStream();
+                    picture.CopyTo(ms);
+                    product.Picture = ms.ToArray();
+                }
+
                 _context.Add(product);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -162,6 +174,26 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
         private bool ProductExists(int id)
         {
             return _context.Products.Any(e => e.ProductId == id);
+        }
+
+        public async Task<FileStreamResult> ReadImage(int id)
+        {
+            FileStreamResult result = null;
+
+            var product = await _context.Products
+                .FirstOrDefaultAsync(m => m.ProductId == id);
+
+            if (product != null)
+            {
+                var stream = new MemoryStream(product.Picture);
+
+                if (stream != null)
+                {
+                    result = File(stream, "image/png");
+                }
+            }
+
+            return result;
         }
     }
 }

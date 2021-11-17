@@ -11,10 +11,13 @@
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="5.0.0" />
+    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.2.13" />
+    <PackageReference Include="X.PagedList" Version="8.1.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Northwind.Store.Model\Northwind.Store.Model.csproj" />
+    <ProjectReference Include="..\Northwind.Store.Notification\Northwind.Store.Notification.csproj" />
   </ItemGroup>
 
 </Project>

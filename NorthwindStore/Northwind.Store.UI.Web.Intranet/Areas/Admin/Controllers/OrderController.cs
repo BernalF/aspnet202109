@@ -42,6 +42,8 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
                 .Include(o => o.Customer)
                 .Include(o => o.Employee)
                 .Include(o => o.ShipViaNavigation)
+                .Include(o => o.OrderDetails)
+                .ThenInclude(od => od.Product)
                 .FirstOrDefaultAsync(m => m.OrderId == id);
             if (order == null)
             {

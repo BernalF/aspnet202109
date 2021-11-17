@@ -1,4 +1,6 @@
-﻿@model IEnumerable<Northwind.Store.Model.Category>
+﻿@using X.PagedList
+@using X.PagedList.Mvc.Core
+@model IEnumerable<Northwind.Store.Model.Category>
 
 @{
     ViewData["Title"] = "Index";
@@ -25,25 +27,27 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.CategoryName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @*@Html.DisplayFor(modelItem => item.Picture)*@
-                <img src="@Url.Action("ReadImage", new { id = item.CategoryId })"
-                     alt="Imagen de @item.CategoryName"  width="50" height="50"/>
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.CategoryId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.CategoryId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.CategoryId">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CategoryName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                <td>
+                    @*@Html.DisplayFor(modelItem => item.Picture)*@
+                    <img src="@Url.Action("ReadImage", new { id = item.CategoryId })"
+                         alt="Imagen de @item.CategoryName" width="50" height="50" />
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.CategoryId">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.CategoryId">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.CategoryId">Delete</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
+@Html.PagedListPager((IPagedList)Model, page => Url.Action("Index", new { page }))

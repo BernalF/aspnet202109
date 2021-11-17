@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Northwind.Store.Data;
 using Northwind.Store.Model;
+using X.PagedList;
 
 namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
 {
@@ -21,10 +22,11 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
         }
 
         // GET: Admin/OrderDetail
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? page)
         {
+            var pageNumber = page ?? 1; 
             var nWContext = _context.OrderDetails.Include(o => o.Order).Include(o => o.Product);
-            return View(await nWContext.ToListAsync());
+            return View(await nWContext.ToPagedListAsync(pageNumber, 5));
         }
 
         // GET: Admin/OrderDetail/Details/5

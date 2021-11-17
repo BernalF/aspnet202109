@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Northwind.Store.Data;
 using Northwind.Store.Model;
+using X.PagedList;
 
 namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
 {
@@ -20,9 +21,10 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
         }
 
         // GET: Customer
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? page)
         {
-            return View(await _context.Customers.ToListAsync());
+            var pageNumber = page ?? 1; 
+            return View(await _context.Customers.ToPagedListAsync(pageNumber, 5));
         }
 
         // GET: Customer/Details/5

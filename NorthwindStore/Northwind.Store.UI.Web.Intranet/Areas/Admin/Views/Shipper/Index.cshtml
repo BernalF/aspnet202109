@@ -1,10 +1,12 @@
-﻿@model IEnumerable<Northwind.Store.Model.Shipper>
+﻿@using X.PagedList
+@using X.PagedList.Mvc.Core
+@model IEnumerable<Northwind.Store.Model.Shipper>
 
 @{
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<h1>Shippers</h1>
 
 <p>
     <a asp-action="Create">Create New</a>
@@ -22,20 +24,22 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.CompanyName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Phone)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.ShipperId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.ShipperId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.ShipperId">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CompanyName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Phone)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.ShipperId">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.ShipperId">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.ShipperId">Delete</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
+@Html.PagedListPager((IPagedList)Model, page => Url.Action("Index", new { page }))

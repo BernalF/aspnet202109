@@ -1,4 +1,6 @@
-﻿@model Northwind.Store.Model.Order
+﻿@using System.Xml.Linq
+@using Microsoft.EntityFrameworkCore.Infrastructure
+@model Northwind.Store.Model.Order
 
 @{
     ViewData["Title"] = "Details";
@@ -10,87 +12,139 @@
     <h4>Order</h4>
     <hr />
     <dl class="row">
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.OrderDate)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.OrderDate)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.RequiredDate)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.RequiredDate)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.ShippedDate)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.ShippedDate)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Freight)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Freight)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.ShipName)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.ShipName)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.ShipAddress)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.ShipAddress)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.ShipCity)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.ShipCity)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.ShipRegion)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.ShipRegion)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.ShipPostalCode)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.ShipPostalCode)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.ShipCountry)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.ShipCountry)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Customer)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Customer.CustomerId)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Employee)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Employee.FirstName)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.ShipViaNavigation)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.ShipViaNavigation.CompanyName)
         </dd>
     </dl>
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model.OrderId">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h4>OrderDetail</h4>
+            <hr />
+            <div>
+                <h6>Order Id:@Html.DisplayFor(model => model.OrderId)</h6>
+            </div>
+        </div>
+    </div>
+        <div class="row">
+            @foreach (var x in Model.OrderDetails)
+            {
+                <dl class="col list-group list-group-flush ">
+                    <dt class="list-group-item">
+                        @Html.DisplayNameFor(model => x.UnitPrice)
+                    </dt>
+                    <dd class="list-group-item">
+                        @Html.DisplayFor(model => x.UnitPrice)
+                    </dd>
+                    <dt class="list-group-item">
+                        @Html.DisplayNameFor(model => x.Quantity)
+                    </dt>
+                    <dd class="list-group-item">
+                        @Html.DisplayFor(model => x.Quantity)
+                    </dd>
+                    <dt class="list-group-item">
+                        @Html.DisplayNameFor(model => x.Discount)
+                    </dt>
+                    <dd class="list-group-item">
+                        @Html.DisplayFor(model => x.Discount)
+                    </dd>
+                    <dt class="list-group-item">
+                        @Html.DisplayNameFor(model => x.Product)
+                    </dt>
+                    <dd class="list-group-item">
+                        @Html.DisplayFor(model => x.Product.ProductName)
+                    </dd>
+                </dl>
+            }
+            <div class="col">
+                <h4>Total Order</h4>
+                <hr />
+                <div>
+                    <h4>@Model.OrderDetails.Sum(x => x.UnitPrice)</h4>
+                </div>
+            </div>
+        </div>
+    
 </div>
+
+
+        <div>
+            <a asp-action="Edit" asp-route-id="@Model.OrderId">Edit</a> |
+            <a asp-action="Index">Back to List</a>
+        </div>
