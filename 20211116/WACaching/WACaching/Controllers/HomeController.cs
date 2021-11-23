@@ -37,8 +37,8 @@ namespace WACaching.Controllers
                 // Set cache options.
                 var cacheEntryOptions = new MemoryCacheEntryOptions()
                     // Keep in cache for this time, reset time if accessed.
-                    .SetAbsoluteExpiration(TimeSpan.FromSeconds(10));
-                //.SetSlidingExpiration(TimeSpan.FromSeconds(3));
+                    //.SetAbsoluteExpiration(TimeSpan.FromSeconds(10));
+                    .SetSlidingExpiration(TimeSpan.FromSeconds(3));
 
                 // Save data in cache.
                 _cache.Set(CacheKeys.Entry, cacheEntry, cacheEntryOptions);
@@ -189,7 +189,8 @@ namespace WACaching.Controllers
             {
                 CancellationTokenSource cts =
                    _cache.Get<CancellationTokenSource>(CacheKeys.CancelTokenSource);
-                cts.CancelAfter(100);
+                //cts.CancelAfter(100);
+                cts.Cancel();
                 // Cancel immediately with cts.Cancel();
             }
 
@@ -211,9 +212,10 @@ namespace WACaching.Controllers
         //[ResponseCache(Duration = 10,
         //    Location = ResponseCacheLocation.Client,
         //    VaryByQueryKeys = new string[] { "param1" })]
-        //[ResponseCache(CacheProfileName = "Basic")]
+        [ResponseCache(CacheProfileName = "NoCaching")]
         public IActionResult Privacy()
         {
+            System.Diagnostics.Debug.WriteLine($"Privacy: {DateTime.Now}");
             return View();
         }
     }
