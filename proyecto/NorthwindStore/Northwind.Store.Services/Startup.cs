@@ -28,6 +28,14 @@ namespace Northwind.Store.Services
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(builder =>
+                {
+                    builder.WithOrigins("https://localhost:44358").AllowAnyHeader().AllowAnyMethod();
+                });
+            });
+
             services.AddDbContextPool<NWContext>(options => options.UseSqlServer(Configuration.GetConnectionString("NW")));
 
             services.AddControllers();
@@ -50,6 +58,8 @@ namespace Northwind.Store.Services
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseCors();
 
             app.UseAuthorization();
 
