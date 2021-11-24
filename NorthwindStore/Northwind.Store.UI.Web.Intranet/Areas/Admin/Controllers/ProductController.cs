@@ -64,19 +64,18 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ProductId,ProductName,SupplierId,CategoryId,QuantityPerUnit,UnitPrice,UnitsInStock,UnitsOnOrder,ReorderLevel,Discontinued,Picture")] Product product, IFormFile picture)
+        public async Task<IActionResult> Create([Bind("ProductId,ProductName,SupplierId,CategoryId,QuantityPerUnit,UnitPrice,Picture")] Product product, IFormFile picture)
         {
             if (ModelState.IsValid)
             {
                 if (picture != null)
                 {
-                    // using System.IO;
-                    using MemoryStream ms = new MemoryStream();
-                    picture.CopyTo(ms);
+                    await using MemoryStream ms = new MemoryStream();
+                    await picture.CopyToAsync(ms);
                     product.Picture = ms.ToArray();
                 }
 
-                _context.Add(product);
+                await _context.Products.AddAsync(product);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
@@ -108,7 +107,7 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ProductId,ProductName,SupplierId,CategoryId,QuantityPerUnit,UnitPrice,UnitsInStock,UnitsOnOrder,ReorderLevel,Discontinued")] Product product)
+        public async Task<IActionResult> Edit(int id, [Bind("ProductId,ProductName,SupplierId,CategoryId,QuantityPerUnit,UnitPrice,UnitsInStock,UnitsOnOrder,ReorderLevel,Discontinued, Picture")] Product product, IFormFile picture)
         {
             if (id != product.ProductId)
             {
@@ -119,6 +118,13 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
             {
                 try
                 {
+                    if (picture != null)
+                    {
+                        await using MemoryStream ms = new MemoryStream();
+                        await picture.CopyToAsync(ms);
+                        product.Picture = ms.ToArray();
+                    }
+
                     _context.Update(product);
                     await _context.SaveChangesAsync();
                 }

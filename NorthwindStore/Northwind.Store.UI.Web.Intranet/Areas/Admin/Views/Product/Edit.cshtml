@@ -10,7 +10,7 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Edit">
+        <form asp-action="Edit" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="ProductId" />
             <div class="form-group">
@@ -43,20 +43,22 @@
                 <input asp-for="UnitsInStock" class="form-control" />
                 <span asp-validation-for="UnitsInStock" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="UnitsOnOrder" class="control-label"></label>
-                <input asp-for="UnitsOnOrder" class="form-control" />
-                <span asp-validation-for="UnitsOnOrder" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ReorderLevel" class="control-label"></label>
-                <input asp-for="ReorderLevel" class="form-control" />
-                <span asp-validation-for="ReorderLevel" class="text-danger"></span>
-            </div>
             <div class="form-group form-check">
                 <label class="form-check-label">
                     <input class="form-check-input" asp-for="Discontinued" /> @Html.DisplayNameFor(model => model.Discontinued)
                 </label>
+            </div>
+            <div class="form-group">
+                <div class="custom-file">
+                    <input asp-for="Picture" type="file" class="custom-file-input" accept=".jpg,.png">
+                    <label class="custom-file-label" asp-for="Picture">Choose file</label>
+                    <span asp-validation-for="Picture" class="text-danger"></span>
+                </div>
+                @if (Model.Picture != null)
+                {
+                    <img id="picture_preview" src="@Url.Action("ReadImage", new { id = Model.ProductId })"
+                         alt="Imagen de @Model.Picture" width="200" height="200" />
+                }
             </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
@@ -72,3 +74,21 @@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script type="text/javascript">
+    $(function () {
+        $('#Picture').change(function() {
+            var file = $("input[type=file]").get(0).files[0];
+
+            if (file) {
+                var reader = new FileReader();
+
+                reader.onload = function () {
+                    $("#picture_preview").show();
+                    $("#picture_preview").attr("src", reader.result);
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+    });
+</script>
