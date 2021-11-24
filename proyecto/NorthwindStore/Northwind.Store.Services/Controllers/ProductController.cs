@@ -42,11 +42,13 @@ namespace Northwind.Store.Services.Controllers
             return product;
         }
 
+        // https://docs.microsoft.com/en-us/aspnet/core/fundamentals/routing?view=aspnetcore-6.0#route-constraints
+        // [HttpGet("Search/{filter:minlength(1)}")]
         // GET: api/Product/Search/queso
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(IEnumerable<Product>), StatusCodes.Status200OK)]
-        [HttpGet("Search/{filter:minlength(1)}")]
-        public async Task<ActionResult<IEnumerable<Product>>> SearchProduct(string filter)
+        [HttpGet("Search/{filter}")]
+        public async Task<ActionResult<IEnumerable<Product>>> SearchProduct(string filter = "")
         {
             var products = await _context.Products.Where(p => p.ProductName.Contains(filter)).ToListAsync();
 
