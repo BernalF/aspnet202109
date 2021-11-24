@@ -32,6 +32,9 @@ namespace Northwind.Store.Services
             {
                 options.AddDefaultPolicy(builder =>
                 {
+                    // policy.AllowAnyOrigin()
+                    builder.AllowAnyOrigin();
+
                     builder.WithOrigins("https://localhost:44358").AllowAnyHeader().AllowAnyMethod();
                 });
             });
