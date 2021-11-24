@@ -31,11 +31,10 @@ namespace Northwind.Store.Services
             services.AddCors(options =>
             {
                 options.AddDefaultPolicy(builder =>
-                {
-                    // policy.AllowAnyOrigin()
-                    builder.AllowAnyOrigin();
-
-                    builder.WithOrigins("https://localhost:44358").AllowAnyHeader().AllowAnyMethod();
+                {                    
+                    builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+                    // Para un origen específico
+                    //builder.WithOrigins("https://localhost:44358").AllowAnyHeader().AllowAnyMethod();
                 });
             });
 
