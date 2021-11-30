@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Northwind.Store.Data;
 using Northwind.Store.Model;
+using Northwind.Store.Services.Filters;
 
 namespace Northwind.Store.Services.Controllers
 {
@@ -93,6 +94,7 @@ namespace Northwind.Store.Services.Controllers
 
         // POST: api/Product
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        //[ValidateModel]
         [HttpPost]
         public async Task<ActionResult<Product>> PostProduct(Product product)
         {
