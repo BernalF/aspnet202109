@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Northwind.Store.Data;
 using Northwind.Store.Model;
+using Northwind.Store.Services.Filters;
 
 namespace Northwind.Store.Services.Controllers
 {
@@ -42,11 +43,13 @@ namespace Northwind.Store.Services.Controllers
             return product;
         }
 
+        // https://docs.microsoft.com/en-us/aspnet/core/fundamentals/routing?view=aspnetcore-6.0#route-constraints
+        // [HttpGet("Search/{filter:minlength(1)}")]
         // GET: api/Product/Search/queso
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(IEnumerable<Product>), StatusCodes.Status200OK)]
-        [HttpGet("Search/{filter:minlength(1)}")]
-        public async Task<ActionResult<IEnumerable<Product>>> SearchProduct(string filter)
+        [HttpGet("Search/{filter}")]
+        public async Task<ActionResult<IEnumerable<Product>>> SearchProduct(string filter = "")
         {
             var products = await _context.Products.Where(p => p.ProductName.Contains(filter)).ToListAsync();
 
@@ -91,6 +94,7 @@ namespace Northwind.Store.Services.Controllers
 
         // POST: api/Product
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        //[ValidateModel]
         [HttpPost]
         public async Task<ActionResult<Product>> PostProduct(Product product)
         {

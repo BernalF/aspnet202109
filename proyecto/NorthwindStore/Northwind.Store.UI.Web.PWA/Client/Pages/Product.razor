@@ -1,9 +1,11 @@
-﻿@page "/product"
-@inject HttpClient Http
-@inject IJSRuntime JsRuntime
-
-@using System.Text.Json;
+﻿@using System.Text.Json;
 @using System.Text
+@using Northwind.Store.UI.Web.PWA.Client.Services
+
+@page "/product"
+@inject HttpClient Http
+@inject IProductService ps
+@inject IJSRuntime JsRuntime
 
 <h3>Products</h3>
 
@@ -38,12 +40,12 @@
                 <tbody>
                     @foreach (var p in products)
                     {
-                    <tr>
-                        <td>@p.ProductName</td>
-                        <td>@p.UnitPrice</td>
-                        <td><button @onclick="@(() => { product = p; _state = State.Edit; })">Select</button></td>
-                        <td><button @onclick="@(async () => { if (await Confirm()) { await onDelete(p.ProductId); } })">X</button></td>
-                    </tr>
+                        <tr>
+                            <td>@p.ProductName</td>
+                            <td>@p.UnitPrice</td>
+                            <td><button @onclick="@(() => { product = p; _state = State.Edit; })">Select</button></td>
+                            <td><button @onclick="@(async () => { if (await Confirm()) { await onDelete(p.ProductId); } })">X</button></td>
+                        </tr>
                     }
                 </tbody>
             </table>
@@ -74,17 +76,15 @@
 }
 
 @code {
-    private string baseURL = "https://localhost:44332/api/Product/";
-    string filter = "";
-
-    State _state = State.None;
-
-    private Model.Product product = new Model.Product();
+    private Model.Product product;
     private List<Model.Product> products = new List<Model.Product>();
+
+    string filter = "";
+    State _state = State.None;
 
     //protected override async Task OnInitializedAsync()
     //{
-    //    products = await Http.GetFromJsonAsync<Northwind.Store.Model.Product[]>($"{baseURL}Search/{filter}");
+    //    products = await ps.Search(filter);
     //}
 
     public void createNew()
@@ -98,27 +98,10 @@
         switch (_state)
         {
             case State.Create:
-                using (var httpClient = new HttpClient())
-                {
-                    StringContent content = new StringContent(JsonSerializer.Serialize(product), Encoding.UTF8, "application/json");
-
-                    using (var response = await httpClient.PostAsync($"{baseURL}", content))
-                    {
-                        string apiResponse = await response.Content.ReadAsStringAsync();
-                        product = JsonSerializer.Deserialize<Model.Product>(apiResponse);
-                    }
-                }
+                await ps.Create(product);
                 break;
             case State.Edit:
-                using (var httpClient = new HttpClient())
-                {
-                    StringContent content = new StringContent(JsonSerializer.Serialize(product), Encoding.UTF8, "application/json");
-
-                    using (var response = await httpClient.PutAsync($"{baseURL}{product.ProductId}", content))
-                    {
-                        string apiResponse = await response.Content.ReadAsStringAsync();
-                    }
-                }
+                await ps.Update(product);
                 break;
         }
 
@@ -130,14 +113,12 @@
     public async Task onSearch()
     {
         products = null;
-        products = await Http.GetFromJsonAsync<List<Model.Product>>($"{baseURL}Search/{filter}");
+        products = await ps.Search(filter);
     }
 
     public async Task onDelete(int id)
     {
-        await Http.DeleteAsync($"{baseURL}{id}");
-
-        products.Remove(products.Single(p => p.ProductId == id));
+        await ps.Delete(id);
 
         await Alert("Ready!");
     }
