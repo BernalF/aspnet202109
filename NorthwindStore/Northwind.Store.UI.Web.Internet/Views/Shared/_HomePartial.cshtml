@@ -1,19 +1,9 @@
-﻿@using X.PagedList
-@using X.PagedList.Mvc.Core
+﻿@using X.PagedList.Mvc.Core
 @using X.PagedList.Web.Common
+@using X.PagedList
 @model IEnumerable<Northwind.Store.Model.Product>
 
-<form asp-action="Index" class="form-group row">
-    <div class="col">
-        <input type="search" class="form-control" name="filter" placeholder="Type Here..." value="@ViewData["filter"]">
-    </div>
-    <div class="col">
-        <button type="submit" class="btn btn-primary">Search</button>
-    </div>
-
-</form>
-
-@if (Model.Count() > 0)
+@if (Model.Any())
 {
     <div class="list-group list-group-flush">
         @foreach (var p in Model)

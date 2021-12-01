@@ -1,30 +1,61 @@
-﻿@using X.PagedList
-@using X.PagedList.Mvc.Core
-@model IEnumerable<Northwind.Store.Model.Product>
+﻿@model IEnumerable<Northwind.Store.Model.Product>
 
 @{
     ViewData["Title"] = "Home Page";
 }
+
+<form asp-action="Index" class="form-group row">
+    <div class="col">
+        <input id="searchTxt" type="search" class="form-control" name="filter" placeholder="Type Here..." value="@ViewData["filter"]">
+    </div>
+    <div class="col">
+        <button type="button" id="searchBtn" class="btn btn-primary">Search</button>
+    </div>
+</form>
+
 <div id="table1">
     <partial name="_HomePartial" model="@Model" />
 </div>
 
 @section Scripts{
     <script>
-        $(function () {
+        $(function() {
             function interceptPaging() {
-                $("#table1 .pagination a").click(function (event) {
+                $("#table1 .pagination a").click(function(event) {
                     event.preventDefault();
 
                     $.get($(this).attr("href"),
-                        function (d) {
+                        function(d) {
                             $("#table1").html(d);
                             interceptPaging();
                         });
                 });
             }
+            
+            function search() {
+                $("#searchBtn").click(function(event) {
+                    event.preventDefault();
+                    var searchValue = $("#searchTxt").val();
+
+                    $.ajax({
+                            type: 'POST',
+                            url: '/Home/Index',
+                            data: {
+                                filter: searchValue
+                            }
+                        })
+                        .done(function(response) {
+                            $("#table1").html(response);
+                        })
+                        .fail(function(xmlHttpRequest, textStatus, errorThrown) {
+                            alert("Fail");
+                        });
+                });
+            }
 
             interceptPaging();
+            search();
+
         });
     </script>
 }

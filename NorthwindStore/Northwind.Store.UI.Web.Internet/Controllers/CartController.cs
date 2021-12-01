@@ -60,7 +60,7 @@ namespace Northwind.Store.UI.Web.Internet.Controllers
                 #endregion
             }
 
-            return RedirectToAction("Index");
+            return RedirectToAction(nameof(Index));
         }
 
         public async Task<IActionResult> Buy(CartViewModel cartViewModels)

@@ -14,6 +14,7 @@ using X.PagedList;
 
 namespace Northwind.Store.UI.Web.Internet.Controllers
 {
+    [ResponseCache(CacheProfileName = "Basic")]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
@@ -95,11 +96,11 @@ namespace Northwind.Store.UI.Web.Internet.Controllers
 
             if (filter != null)
             {
-                items = await _context.Products.Include(p => p.Category).Where(x => x.ProductName.Contains(filter)).ToPagedListAsync(pageNumber, 10);
+                items = await _context.Products.Include(p => p.Category).Where(x => x.ProductName.Contains(filter)).ToPagedListAsync(pageNumber, 5);
             }
             else
             {
-                items = await _context.Products.Include(p => p.Category).ToPagedListAsync(pageNumber, 10);
+                items = await _context.Products.Include(p => p.Category).ToPagedListAsync(pageNumber, 5);
             }
             return items;
         }

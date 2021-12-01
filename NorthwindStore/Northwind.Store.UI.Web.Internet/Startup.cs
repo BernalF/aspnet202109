@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using Northwind.Store.UI.Web.Internet.Settings;
 
 namespace Northwind.Store.UI.Web.Internet
@@ -41,8 +42,18 @@ namespace Northwind.Store.UI.Web.Internet
             });
 
             services.AddHttpContextAccessor();
+            services.AddResponseCaching();
 
-            services.AddControllersWithViews();
+            var mvc = services.AddControllersWithViews(options =>
+            {
+                options.CacheProfiles.Add("Basic", new CacheProfile()
+                {
+                    Duration = 10,
+                    VaryByHeader = "User-Agent"
+                });
+                options.CacheProfiles.Add("NoCaching",
+                    new CacheProfile() {NoStore = true, Location = ResponseCacheLocation.None});
+            });
 
             services.AddTransient(typeof(SessionSettings));
         }
@@ -68,7 +79,7 @@ namespace Northwind.Store.UI.Web.Internet
             }
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-
+            app.UseResponseCaching();
             app.UseRouting();
 
             app.UseSession();
