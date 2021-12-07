@@ -34,8 +34,13 @@ namespace Northwind.Store.UI.Web.Intranet
             //    options.UseSqlServer(
             //        Configuration.GetConnectionString("NW")));
 
-            services.AddDbContextPool<NWContext>(options => 
-                options.UseSqlServer(Configuration.GetConnectionString("NW")));
+            services.AddDbContextPool<NWContext>(options =>
+            {
+#if DEBUG
+                options.LogTo(Console.WriteLine);
+#endif
+                options.UseSqlServer(Configuration.GetConnectionString("NW"));
+            });
 
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
@@ -113,3 +118,7 @@ namespace Northwind.Store.UI.Web.Intranet
 // Cross-Site Request Forgery (XSRF/CSRF)
 // Open Redirect Attacks
 // Cross-Origin Requests (CORS)
+
+// Logging Levels: Trace = 0, Debug = 1, Information = 2 (*Default), Warning = 3, Error = 4, Critical = 5, and None = 6.	
+//
+// Providers: Console, Debug, *EventSource, EventLog	

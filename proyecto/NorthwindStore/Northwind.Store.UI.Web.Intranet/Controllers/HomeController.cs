@@ -21,7 +21,11 @@ namespace Northwind.Store.UI.Web.Intranet.Controllers
 
         public IActionResult Index()
         {
-            //throw new ApplicationException("¡Esta es una excepción!");
+            _logger.Log(LogLevel.Information, $"Home.Index ... {DateTime.Now}");
+            _logger.LogTrace("Este es un trace");
+            _logger.LogError("Este es un error");
+
+            throw new ApplicationException("¡Esta es una excepción!");
             //return NotFound();
             //return Forbid();
             //return Unauthorized();
