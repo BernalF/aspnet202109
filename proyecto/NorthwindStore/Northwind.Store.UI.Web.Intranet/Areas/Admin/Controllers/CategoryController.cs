@@ -33,6 +33,7 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
         }
 
         // GET: Admin/Category
+        [ResponseHeader("X-Request", "Index")]
         public async Task<IActionResult> Index()
         {
             var filtro = "";

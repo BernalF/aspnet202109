@@ -34,8 +34,13 @@ namespace Northwind.Store.UI.Web.Intranet
             //    options.UseSqlServer(
             //        Configuration.GetConnectionString("NW")));
 
-            services.AddDbContextPool<NWContext>(options => 
-                options.UseSqlServer(Configuration.GetConnectionString("NW")));
+            services.AddDbContextPool<NWContext>(options =>
+            {
+#if DEBUG
+                options.LogTo(Console.WriteLine);
+#endif
+                options.UseSqlServer(Configuration.GetConnectionString("NW"));
+            });
 
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
@@ -73,6 +78,13 @@ namespace Northwind.Store.UI.Web.Intranet
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+
+            //app.UseStatusCodePages();
+            //app.UseStatusCodePagesWithRedirects("/Home/ErrorWithCode?code={0}");
+            app.UseStatusCodePagesWithRedirects("/ErrorStatus.html?code={0}");
+            //app.UseStatusCodePagesWithRedirects("/Status{0}.html?code=");
+            //app.UseStatusCodePagesWithReExecute("/Home/ErrorWithCode", "?code={0}");
+
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
@@ -99,3 +111,14 @@ namespace Northwind.Store.UI.Web.Intranet
         }
     }
 }
+
+
+// SQL Injection
+// Cross-Site Scripting (XSS)
+// Cross-Site Request Forgery (XSRF/CSRF)
+// Open Redirect Attacks
+// Cross-Origin Requests (CORS)
+
+// Logging Levels: Trace = 0, Debug = 1, Information = 2 (*Default), Warning = 3, Error = 4, Critical = 5, and None = 6.	
+//
+// Providers: Console, Debug, *EventSource, EventLog	
