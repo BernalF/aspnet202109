@@ -1,13 +1,11 @@
 ﻿using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Northwind.Store.Data;
 using Northwind.Store.Model;
-using X.PagedList;
+using Northwind.Store.Notification;
 
 namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
 {
@@ -15,18 +13,19 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
     [Area("Admin")]
     public class CategoryController : Controller
     {
-        private readonly NWContext _context;
+        private readonly IRepository<Category> repository;
+        private readonly Notifications notifications = new();
 
-        public CategoryController(NWContext context)
+        public CategoryController(IRepository<Category> repository)
         {
-            _context = context;
+            this.repository = repository;
         }
 
         // GET: Admin/Category
         public async Task<IActionResult> Index(int? page)
         {
             var pageNumber = page ?? 1; 
-            return View(await _context.Categories.ToPagedListAsync(pageNumber, 5));
+            return View(await repository.GetList(pageNumber, 5));
         }
 
         // GET: Admin/Category/Details/5
@@ -37,14 +36,14 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var category = await _context.Categories
-                .FirstOrDefaultAsync(m => m.CategoryId == id);
-            if (category == null)
+            var model = await repository.Get(id.Value);
+
+            if (model == null)
             {
                 return NotFound();
             }
 
-            return View(category);
+            return View(model);
         }
 
         // GET: Admin/Category/Create
@@ -58,7 +57,7 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("CategoryId,CategoryName,Description,Picture")] Category category, IFormFile picture)
+        public async Task<IActionResult> Create([Bind("CategoryId,CategoryName,Description,Picture")] Category model, IFormFile picture)
         {
             if (ModelState.IsValid)
             {
@@ -67,14 +66,23 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
                     // using System.IO;
                     using MemoryStream ms = new();
                     picture.CopyTo(ms);
-                    category.Picture = ms.ToArray();
+                    model.Picture = ms.ToArray();
                 }
 
-                _context.Add(category);
-                await _context.SaveChangesAsync();
+                model.State = Model.ModelState.Added;
+                await repository.Save(model, notifications);
+
+                if (notifications.Count > 0)
+                {
+                    var msg = notifications[0];
+                    ModelState.AddModelError("", $"{msg.Title} - {msg.Description}");
+
+                    return View(model);
+                }
+
                 return RedirectToAction(nameof(Index));
             }
-            return View(category);
+            return View(model);
         }
 
         // GET: Admin/Category/Edit/5
@@ -85,12 +93,12 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var category = await _context.Categories.FindAsync(id);
-            if (category == null)
+            var model = await repository.Get(id.Value);
+            if (model == null)
             {
                 return NotFound();
             }
-            return View(category);
+            return View(model);
         }
 
         // POST: Admin/Category/Edit/5
@@ -98,34 +106,29 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("CategoryId,CategoryName,Description,Picture")] Category category)
+        public async Task<IActionResult> Edit(int id, [Bind("CategoryId,CategoryName,Description,Picture")] Category model)
         {
-            if (id != category.CategoryId)
+            if (id != model.CategoryId)
             {
                 return NotFound();
             }
 
             if (ModelState.IsValid)
             {
-                try
+                model.State = Model.ModelState.Modified;
+                await repository.Save(model, notifications);
+
+                if (notifications.Count > 0)
                 {
-                    _context.Update(category);
-                    await _context.SaveChangesAsync();
+                    var msg = notifications[0];
+                    ModelState.AddModelError("", $"{msg.Title} - {msg.Description}");
+
+                    return View(model);
                 }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!CategoryExists(category.CategoryId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+
                 return RedirectToAction(nameof(Index));
             }
-            return View(category);
+            return View(model);
         }
 
         // GET: Admin/Category/Delete/5
@@ -136,49 +139,47 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var category = await _context.Categories
-                .FirstOrDefaultAsync(m => m.CategoryId == id);
-            if (category == null)
+            var model = await repository.Get(id.Value);
+
+            if (model == null)
             {
                 return NotFound();
             }
 
-            return View(category);
+            return View(model);
         }
 
         // POST: Admin/Category/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int? id)
         {
-            var category = await _context.Categories.FindAsync(id);
-            _context.Categories.Remove(category);
-            await _context.SaveChangesAsync();
+            if (id != null)
+            {
+                var model = await repository.Get(id.Value);
+                model.State = Model.ModelState.Deleted;
+
+                await repository.Delete(model);
+            }
+
             return RedirectToAction(nameof(Index));
         }
-
-        private bool CategoryExists(int id)
-        {
-            return _context.Categories.Any(e => e.CategoryId == id);
-        }
-
-        public async Task<FileStreamResult> ReadImage(int id)
+        
+        public async Task<FileStreamResult> ReadImage(int? id)
         {
             FileStreamResult result = null;
 
-            var category = await _context.Categories
-                .FirstOrDefaultAsync(m => m.CategoryId == id);
-
-            if (category != null)
+            if (id != null)
             {
-                var stream = new MemoryStream(category.Picture);
+                var model = await repository.Get(id.Value);
 
-                if (stream != null)
+                if (model != null)
                 {
+                    var stream = new MemoryStream(model.Picture);
+
                     result = File(stream, "image/png");
                 }
             }
-
             return result;
         }
     }

@@ -21,10 +21,10 @@ namespace Northwind.Store.Data
 
             IConfigurationRoot configuration = builder.Build();
 
-            DbContextOptionsBuilder<NWContext> optionsBuilder = new DbContextOptionsBuilder<NWContext>();
+            DbContextOptionsBuilder<NwContext> optionsBuilder = new DbContextOptionsBuilder<NwContext>();
             optionsBuilder.UseSqlServer(configuration.GetConnectionString("NW"));
 
-            using var db = new NWContext(optionsBuilder.Options);
+            using var db = new NwContext(optionsBuilder.Options);
 
             return (from c in db.Customers.OrderBy(c => c.CompanyName) select c).ToList();
         }

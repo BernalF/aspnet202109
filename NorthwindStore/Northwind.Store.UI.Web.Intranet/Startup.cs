@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Northwind.Store.Data;
+using Northwind.Store.Model;
 using Northwind.Store.UI.Web.Intranet.Data;
 
 namespace Northwind.Store.UI.Web.Intranet
@@ -26,12 +27,23 @@ namespace Northwind.Store.UI.Web.Intranet
             //    options.UseSqlServer(
             //        Configuration.GetConnectionString("NW")));
 
-            services.AddDbContextPool<NWContext>(options => 
+            services.AddDbContextPool<NwContext>(options => 
                 options.UseSqlServer(Configuration.GetConnectionString("NW")));
 
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
+
+            services.AddTransient<IRepository<Category>, BaseRepository<Category>>();
+            services.AddTransient<IRepository<Customer>, BaseRepository<Customer>>();
+            services.AddTransient<IRepository<Employee>, BaseRepository<Employee>>();
+            services.AddTransient<IRepository<Order>, BaseRepository<Order>>();
+            services.AddTransient<IRepository<OrderDetail>, BaseRepository<OrderDetail>>();
+            services.AddTransient<IRepository<Product>, BaseRepository<Product>>();
+            services.AddTransient<IRepository<Region>, BaseRepository<Region>>();
+            services.AddTransient<IRepository<Shipper>, BaseRepository<Shipper>>();
+            services.AddTransient<IRepository<Supplier>, BaseRepository<Supplier>>();
+            services.AddTransient<IRepository<Territory>, BaseRepository<Territory>>();
 
             services.AddDatabaseDeveloperPageExceptionFilter();
 

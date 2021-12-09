@@ -1,15 +1,11 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Northwind.Store.Data;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Northwind.Store.UI.Web.Internet.Settings;
 
@@ -27,7 +23,7 @@ namespace Northwind.Store.UI.Web.Internet
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContextPool<NWContext>(options => options.UseSqlServer(Configuration.GetConnectionString("NW")));
+            services.AddDbContextPool<NwContext>(options => options.UseSqlServer(Configuration.GetConnectionString("NW")));
 
             services.AddDistributedMemoryCache();
             // SQL Server, Redis, NCache
@@ -44,7 +40,7 @@ namespace Northwind.Store.UI.Web.Internet
             services.AddHttpContextAccessor();
             services.AddResponseCaching();
 
-            var mvc = services.AddControllersWithViews(options =>
+            services.AddControllersWithViews(options =>
             {
                 options.CacheProfiles.Add("Basic", new CacheProfile()
                 {

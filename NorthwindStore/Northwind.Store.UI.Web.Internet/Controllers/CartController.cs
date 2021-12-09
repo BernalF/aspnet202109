@@ -11,11 +11,11 @@ namespace Northwind.Store.UI.Web.Internet.Controllers
 {
     public class CartController : Controller
     {
-        private readonly NWContext _db;
+        private readonly NwContext _db;
         private readonly SessionSettings sessionSettings;
         private readonly RequestSettings requestSettings;
 
-        public CartController(NWContext db, SessionSettings sesSettings)
+        public CartController(NwContext db, SessionSettings sesSettings)
         {
             _db = db;
             sessionSettings = sesSettings;

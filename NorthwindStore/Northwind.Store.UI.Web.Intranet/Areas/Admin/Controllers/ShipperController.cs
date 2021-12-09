@@ -13,9 +13,9 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
     [Area("Admin")]
     public class ShipperController : Controller
     {
-        private readonly NWContext _context;
+        private readonly NwContext _context;
 
-        public ShipperController(NWContext context)
+        public ShipperController(NwContext context)
         {
             _context = context;
         }

@@ -9,13 +9,13 @@ using Northwind.Store.Model;
 
 namespace Northwind.Store.Data
 {
-    public partial class NWContext : DbContext
+    public partial class NwContext : DbContext
     {
         //public NWContext()
         //{
         //}
 
-        public NWContext(DbContextOptions<NWContext> options)
+        public NwContext(DbContextOptions<NwContext> options)
             : base(options)
         {
         }

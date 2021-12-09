@@ -14,9 +14,9 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
     [Area("Admin")]
     public class OrderDetailController : Controller
     {
-        private readonly NWContext _context;
+        private readonly NwContext _context;
 
-        public OrderDetailController(NWContext context)
+        public OrderDetailController(NwContext context)
         {
             _context = context;
         }

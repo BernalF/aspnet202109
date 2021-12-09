@@ -1,31 +1,31 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using Northwind.Store.Data;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Caching.Memory;
 using Northwind.Store.Model;
-using Northwind.Store.UI.Web.Internet.Models;
 using Northwind.Store.UI.Web.Internet.Settings;
 using X.PagedList;
 
 namespace Northwind.Store.UI.Web.Internet.Controllers
 {
-    [ResponseCache(CacheProfileName = "Basic")]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
         private readonly SessionSettings _ss;
-        private readonly NWContext _context;
+        private readonly NwContext _context;
+        private readonly IMemoryCache memoryCache;
 
-        public HomeController(ILogger<HomeController> logger, SessionSettings ss, NWContext db)
+        public HomeController(ILogger<HomeController> logger, SessionSettings ss, NwContext db, IMemoryCache memoryCache)
         {
             _logger = logger;
             _ss = ss;
             _context = db;
+            this.memoryCache = memoryCache;
         }
 
         public async Task<IActionResult> Index(int? page, string filter)
@@ -44,6 +44,7 @@ namespace Northwind.Store.UI.Web.Internet.Controllers
         }
 
         [HttpPost]
+        [ResponseCache(Duration = 10, Location = ResponseCacheLocation.Client, VaryByQueryKeys = new[] { "filter" })]
         public async Task<IActionResult> Index(string filter, string searchString, int? page)
         {
             if (searchString != null)
@@ -58,7 +59,12 @@ namespace Northwind.Store.UI.Web.Internet.Controllers
             ViewData["filter"] = searchString;
 
             var pageNumber = page ?? 1;
-            var items = await GetDataFiltered(pageNumber, filter);
+            
+            if (!memoryCache.TryGetValue(filter, out IPagedList<Product> items))
+            {
+                items = await GetDataFiltered(pageNumber, filter);
+                memoryCache.Set(filter, items, new MemoryCacheEntryOptions { SlidingExpiration = TimeSpan.FromSeconds(10) });
+            }
 
             var isAjax = Request.Headers["X-Requested-With"] == "XMLHttpRequest";
             if (isAjax)
@@ -93,7 +99,7 @@ namespace Northwind.Store.UI.Web.Internet.Controllers
             var pageNumber = page ?? 1;
 
             IPagedList<Product> items;
-
+            
             if (filter != null)
             {
                 items = await _context.Products.Include(p => p.Category).Where(x => x.ProductName.Contains(filter)).ToPagedListAsync(pageNumber, 5);

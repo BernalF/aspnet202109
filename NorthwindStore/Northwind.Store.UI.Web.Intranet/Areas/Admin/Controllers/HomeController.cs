@@ -14,9 +14,9 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
     [Area("Admin")]
     public class HomeController : Controller
     {
-        private readonly NWContext _context;
+        private readonly NwContext _context;
 
-        public HomeController(NWContext context)
+        public HomeController(NwContext context)
         {
             _context = context;
         }

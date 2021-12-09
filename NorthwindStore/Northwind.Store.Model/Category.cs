@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 #nullable disable
 
 namespace Northwind.Store.Model
 {
-    public partial class Category
+    public partial class Category : IObjectWithState
     {
         public Category()
         {
@@ -27,5 +29,10 @@ namespace Northwind.Store.Model
         public byte[] Picture { get; set; }
 
         public virtual ICollection<Product> Products { get; set; }
+
+        [NotMapped]
+        public ModelState State { get; set; }
+        [NotMapped]
+        public ObservableCollection<string> ModifiedProperties { get; set; }
     }
 }

@@ -1,12 +1,10 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using Northwind.Store.Data;
 using Northwind.Store.Model;
-using X.PagedList;
+using Northwind.Store.Notification;
 
 namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
 {
@@ -14,19 +12,21 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
     [Area("Admin")]
     public class EmployeeController : Controller
     {
-        private readonly NWContext _context;
+        private readonly IRepository<Employee> repository;
+        private readonly Notifications notifications = new();
+        private readonly NwContext context;
 
-        public EmployeeController(NWContext context)
+        public EmployeeController(IRepository<Employee> repository, NwContext context)
         {
-            _context = context;
+            this.repository = repository;
+            this.context = context;
         }
 
         // GET: Admin/Employee
         public async Task<IActionResult> Index(int? page)
         {
-            var pageNumber = page ?? 1; 
-            var nWContext = _context.Employees.Include(e => e.ReportsToNavigation);
-            return View(await nWContext.ToPagedListAsync(pageNumber, 5));
+            var pageNumber = page ?? 1;
+            return View(await repository.GetList(pageNumber, 5));
         }
 
         // GET: Admin/Employee/Details/5
@@ -37,21 +37,20 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var employee = await _context.Employees
-                .Include(e => e.ReportsToNavigation)
-                .FirstOrDefaultAsync(m => m.EmployeeId == id);
-            if (employee == null)
+            var model = await repository.Get(id);
+
+            if (model == null)
             {
                 return NotFound();
             }
 
-            return View(employee);
+            return View(model);
         }
 
         // GET: Admin/Employee/Create
         public IActionResult Create()
         {
-            ViewData["ReportsTo"] = new SelectList(_context.Employees, "EmployeeId", "FirstName");
+            ViewData["ReportsTo"] = new SelectList(context.Employees, "EmployeeId", "FirstName");
             return View();
         }
 
@@ -60,16 +59,25 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("EmployeeId,LastName,FirstName,Title,TitleOfCourtesy,BirthDate,HireDate,Address,City,Region,PostalCode,Country,HomePhone,Extension,Photo,Notes,ReportsTo,PhotoPath")] Employee employee)
+        public async Task<IActionResult> Create([Bind("EmployeeId,LastName,FirstName,Title,TitleOfCourtesy,BirthDate,HireDate,Address,City,Region,PostalCode,Country,HomePhone,Extension,Photo,Notes,ReportsTo,PhotoPath")] Employee model)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(employee);
-                await _context.SaveChangesAsync();
+                model.State = Model.ModelState.Added;
+                await repository.Save(model, notifications);
+
+                if (notifications.Count > 0)
+                {
+                    var msg = notifications[0];
+                    ModelState.AddModelError("", $"{msg.Title} - {msg.Description}");
+
+                    return View(model);
+                }
+
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ReportsTo"] = new SelectList(_context.Employees, "EmployeeId", "FirstName", employee.ReportsTo);
-            return View(employee);
+            ViewData["ReportsTo"] = new SelectList(context.Employees, "EmployeeId", "FirstName", model.ReportsTo);
+            return View(model);
         }
 
         // GET: Admin/Employee/Edit/5
@@ -80,13 +88,13 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var employee = await _context.Employees.FindAsync(id);
-            if (employee == null)
+            var model = await repository.Get(id);
+            if (model == null)
             {
                 return NotFound();
             }
-            ViewData["ReportsTo"] = new SelectList(_context.Employees, "EmployeeId", "FirstName", employee.ReportsTo);
-            return View(employee);
+            ViewData["ReportsTo"] = new SelectList(context.Employees, "EmployeeId", "FirstName", model.ReportsTo);
+            return View(model);
         }
 
         // POST: Admin/Employee/Edit/5
@@ -94,35 +102,30 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("EmployeeId,LastName,FirstName,Title,TitleOfCourtesy,BirthDate,HireDate,Address,City,Region,PostalCode,Country,HomePhone,Extension,Photo,Notes,ReportsTo,PhotoPath")] Employee employee)
+        public async Task<IActionResult> Edit(int id, [Bind("EmployeeId,LastName,FirstName,Title,TitleOfCourtesy,BirthDate,HireDate,Address,City,Region,PostalCode,Country,HomePhone,Extension,Photo,Notes,ReportsTo,PhotoPath")] Employee model)
         {
-            if (id != employee.EmployeeId)
+            if (id != model.EmployeeId)
             {
                 return NotFound();
             }
 
             if (ModelState.IsValid)
             {
-                try
+                model.State = Model.ModelState.Modified;
+                await repository.Save(model, notifications);
+
+                if (notifications.Count > 0)
                 {
-                    _context.Update(employee);
-                    await _context.SaveChangesAsync();
+                    var msg = notifications[0];
+                    ModelState.AddModelError("", $"{msg.Title} - {msg.Description}");
+
+                    return View(model);
                 }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!EmployeeExists(employee.EmployeeId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ReportsTo"] = new SelectList(_context.Employees, "EmployeeId", "FirstName", employee.ReportsTo);
-            return View(employee);
+            ViewData["ReportsTo"] = new SelectList(context.Employees, "EmployeeId", "FirstName", model.ReportsTo);
+            return View(model);
         }
 
         // GET: Admin/Employee/Delete/5
@@ -133,31 +136,30 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var employee = await _context.Employees
-                .Include(e => e.ReportsToNavigation)
-                .FirstOrDefaultAsync(m => m.EmployeeId == id);
-            if (employee == null)
+            var model = await repository.Get(id);
+
+            if (model == null)
             {
                 return NotFound();
             }
 
-            return View(employee);
+            return View(model);
         }
 
         // POST: Admin/Employee/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int? id)
         {
-            var employee = await _context.Employees.FindAsync(id);
-            _context.Employees.Remove(employee);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
+            if (id != null)
+            {
+                var model = await repository.Get(id);
+                model.State = Model.ModelState.Deleted;
 
-        private bool EmployeeExists(int id)
-        {
-            return _context.Employees.Any(e => e.EmployeeId == id);
+                await repository.Delete(model);
+            }
+
+            return RedirectToAction(nameof(Index));
         }
     }
 }

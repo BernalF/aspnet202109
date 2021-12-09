@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Northwind.Store.Data;
 using Northwind.Store.Model;
+using Northwind.Store.Notification;
 using X.PagedList;
 
 namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
@@ -13,18 +14,19 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
     [Area("Admin")]
     public class CustomerController : Controller
     {
-        private readonly NWContext _context;
+        private readonly IRepository<Customer> repository;
+        private readonly Notifications notifications = new();
 
-        public CustomerController(NWContext context)
+        public CustomerController(IRepository<Customer> repository)
         {
-            _context = context;
+            this.repository = repository;
         }
 
         // GET: Customer
         public async Task<IActionResult> Index(int? page)
         {
-            var pageNumber = page ?? 1; 
-            return View(await _context.Customers.ToPagedListAsync(pageNumber, 5));
+            var pageNumber = page ?? 1;
+            return View(await repository.GetList(pageNumber, 5));
         }
 
         // GET: Customer/Details/5
@@ -35,14 +37,14 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var customer = await _context.Customers
-                .FirstOrDefaultAsync(m => m.CustomerId == id);
-            if (customer == null)
+            var model = await repository.Get(id);
+
+            if (model == null)
             {
                 return NotFound();
             }
 
-            return View(customer);
+            return View(model);
         }
 
         // GET: Customer/Create
@@ -56,15 +58,24 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("CustomerId,CompanyName,ContactName,ContactTitle,Address,City,Region,PostalCode,Country,Phone,Fax")] Customer customer)
+        public async Task<IActionResult> Create([Bind("CustomerId,CompanyName,ContactName,ContactTitle,Address,City,Region,PostalCode,Country,Phone,Fax")] Customer model)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(customer);
-                await _context.SaveChangesAsync();
+                model.State = Model.ModelState.Added;
+                await repository.Save(model, notifications);
+
+                if (notifications.Count > 0)
+                {
+                    var msg = notifications[0];
+                    ModelState.AddModelError("", $"{msg.Title} - {msg.Description}");
+
+                    return View(model);
+                }
+
                 return RedirectToAction(nameof(Index));
             }
-            return View(customer);
+            return View(model);
         }
 
         // GET: Customer/Edit/5
@@ -75,12 +86,12 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var customer = await _context.Customers.FindAsync(id);
-            if (customer == null)
+            var model = await repository.Get(id);
+            if (model == null)
             {
                 return NotFound();
             }
-            return View(customer);
+            return View(model);
         }
 
         // POST: Customer/Edit/5
@@ -88,34 +99,29 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("CustomerId,CompanyName,ContactName,ContactTitle,Address,City,Region,PostalCode,Country,Phone,Fax")] Customer customer)
+        public async Task<IActionResult> Edit(string id, [Bind("CustomerId,CompanyName,ContactName,ContactTitle,Address,City,Region,PostalCode,Country,Phone,Fax")] Customer model)
         {
-            if (id != customer.CustomerId)
+            if (id != model.CustomerId)
             {
                 return NotFound();
             }
 
             if (ModelState.IsValid)
             {
-                try
+                model.State = Model.ModelState.Modified;
+                await repository.Save(model, notifications);
+
+                if (notifications.Count > 0)
                 {
-                    _context.Update(customer);
-                    await _context.SaveChangesAsync();
+                    var msg = notifications[0];
+                    ModelState.AddModelError("", $"{msg.Title} - {msg.Description}");
+
+                    return View(model);
                 }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!CustomerExists(customer.CustomerId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+
                 return RedirectToAction(nameof(Index));
             }
-            return View(customer);
+            return View(model);
         }
 
         // GET: Customer/Delete/5
@@ -126,14 +132,14 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var customer = await _context.Customers
-                .FirstOrDefaultAsync(m => m.CustomerId == id);
-            if (customer == null)
+            var model = await repository.Get(id);
+
+            if (model == null)
             {
                 return NotFound();
             }
 
-            return View(customer);
+            return View(model);
         }
 
         // POST: Customer/Delete/5
@@ -141,15 +147,15 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
-            var customer = await _context.Customers.FindAsync(id);
-            _context.Customers.Remove(customer);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
+            if (id != null)
+            {
+                var model = await repository.Get(id);
+                model.State = Model.ModelState.Deleted;
 
-        private bool CustomerExists(string id)
-        {
-            return _context.Customers.Any(e => e.CustomerId == id);
+                await repository.Delete(model);
+            }
+
+            return RedirectToAction(nameof(Index));
         }
     }
 }

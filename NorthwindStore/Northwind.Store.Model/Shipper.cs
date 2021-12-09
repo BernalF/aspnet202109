@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations.Schema;
 
 #nullable disable
 
 namespace Northwind.Store.Model
 {
-    public partial class Shipper
+    public partial class Shipper : IObjectWithState
     {
         public Shipper()
         {
@@ -17,5 +19,10 @@ namespace Northwind.Store.Model
         public string Phone { get; set; }
 
         public virtual ICollection<Order> Orders { get; set; }
+
+        [NotMapped]
+        public ModelState State { get; set; }
+        [NotMapped]
+        public ObservableCollection<string> ModifiedProperties { get; set; }
     }
 }

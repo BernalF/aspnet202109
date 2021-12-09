@@ -13,9 +13,9 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
     [Area("Admin")]
     public class RegionController : Controller
     {
-        private readonly NWContext _context;
+        private readonly NwContext _context;
 
-        public RegionController(NWContext context)
+        public RegionController(NwContext context)
         {
             _context = context;
         }

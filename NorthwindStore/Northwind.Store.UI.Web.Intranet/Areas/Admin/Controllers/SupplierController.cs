@@ -13,9 +13,9 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
     [Area("Admin")]
     public class SupplierController : Controller
     {
-        private readonly NWContext _context;
+        private readonly NwContext _context;
 
-        public SupplierController(NWContext context)
+        public SupplierController(NwContext context)
         {
             _context = context;
         }
