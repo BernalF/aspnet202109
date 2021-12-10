@@ -47,6 +47,8 @@ namespace Northwind.Store.UI.Web.Internet.Controllers
         [ResponseCache(Duration = 10, Location = ResponseCacheLocation.Client, VaryByQueryKeys = new[] { "filter" })]
         public async Task<IActionResult> Index(string filter, string searchString, int? page)
         {
+            filter ??= string.Empty;
+            
             if (searchString != null)
             {
                 page = 1;
