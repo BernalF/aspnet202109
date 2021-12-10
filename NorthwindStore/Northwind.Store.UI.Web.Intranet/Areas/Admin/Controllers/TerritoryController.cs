@@ -13,14 +13,14 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
     public class TerritoryController : Controller
     {
         private readonly IRepository<Territory> repository;
+        private readonly IRepository<Region> regionRepository;
         private readonly Notifications notifications = new();
+        
 
-        private readonly NwContext context;
-
-        public TerritoryController(NwContext context, IRepository<Territory> repository)
+        public TerritoryController( IRepository<Territory> repository, IRepository<Region> regionRepository)
         {
             this.repository = repository;
-            this.context = context;
+            this.regionRepository = regionRepository;
         }
 
         // GET: Admin/Territory
@@ -51,7 +51,7 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
         // GET: Admin/Territory/Create
         public IActionResult Create()
         {
-            ViewData["RegionId"] = new SelectList(context.Regions, "RegionId", "RegionDescription");
+            ViewData["RegionId"] = new SelectList(regionRepository.GetAll(), "RegionId", "RegionDescription");
             return View();
         }
 
@@ -77,7 +77,7 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
 
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["RegionId"] = new SelectList(context.Regions, "RegionId", "RegionDescription", model.RegionId);
+            ViewData["RegionId"] = new SelectList(regionRepository.GetAll(), "RegionId", "RegionDescription", model.RegionId);
             return View(model);
         }
 
@@ -94,7 +94,7 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
             {
                 return NotFound();
             }
-            ViewData["RegionId"] = new SelectList(context.Regions, "RegionId", "RegionDescription", model.RegionId);
+            ViewData["RegionId"] = new SelectList(regionRepository.GetAll(), "RegionId", "RegionDescription", model.RegionId);
             return View(model);
         }
 
@@ -125,7 +125,7 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
 
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["RegionId"] = new SelectList(context.Regions, "RegionId", "RegionDescription", model.RegionId);
+            ViewData["RegionId"] = new SelectList(regionRepository.GetAll(), "RegionId", "RegionDescription", model.RegionId);
             return View(model);
         }
 

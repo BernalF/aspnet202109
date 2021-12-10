@@ -1,11 +1,9 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Northwind.Store.Data;
 using Northwind.Store.Model;
-using X.PagedList;
+using Northwind.Store.Notification;
 
 namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
 {
@@ -13,18 +11,19 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
     [Area("Admin")]
     public class RegionController : Controller
     {
-        private readonly NwContext _context;
+        private readonly IRepository<Region> repository;
+        private readonly Notifications notifications = new();
 
-        public RegionController(NwContext context)
+        public RegionController(IRepository<Region> repository)
         {
-            _context = context;
+            this.repository = repository;
         }
 
         // GET: Admin/Region
         public async Task<IActionResult> Index(int? page)
         {
-            var pageNumber = page ?? 1; 
-            return View(await _context.Regions.ToPagedListAsync(pageNumber, 5));
+            var pageNumber = page ?? 1;
+            return View(await repository.GetList(pageNumber, 5));
         }
 
         // GET: Admin/Region/Details/5
@@ -35,14 +34,14 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var region = await _context.Regions
-                .FirstOrDefaultAsync(m => m.RegionId == id);
-            if (region == null)
+            var model = await repository.Get(id);
+
+            if (model == null)
             {
                 return NotFound();
             }
 
-            return View(region);
+            return View(model);
         }
 
         // GET: Admin/Region/Create
@@ -56,15 +55,24 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("RegionId,RegionDescription")] Region region)
+        public async Task<IActionResult> Create([Bind("RegionId,RegionDescription")] Region model)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(region);
-                await _context.SaveChangesAsync();
+                model.State = Model.ModelState.Added;
+                await repository.Save(model, notifications);
+
+                if (notifications.Count > 0)
+                {
+                    var msg = notifications[0];
+                    ModelState.AddModelError("", $"{msg.Title} - {msg.Description}");
+
+                    return View(model);
+                }
+
                 return RedirectToAction(nameof(Index));
             }
-            return View(region);
+            return View(model);
         }
 
         // GET: Admin/Region/Edit/5
@@ -75,12 +83,12 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var region = await _context.Regions.FindAsync(id);
-            if (region == null)
+            var model = await repository.Get(id);
+            if (model == null)
             {
                 return NotFound();
             }
-            return View(region);
+            return View(model);
         }
 
         // POST: Admin/Region/Edit/5
@@ -88,34 +96,29 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("RegionId,RegionDescription")] Region region)
+        public async Task<IActionResult> Edit(int id, [Bind("RegionId,RegionDescription")] Region model)
         {
-            if (id != region.RegionId)
+            if (id != model.RegionId)
             {
                 return NotFound();
             }
 
             if (ModelState.IsValid)
             {
-                try
+                model.State = Model.ModelState.Modified;
+                await repository.Save(model, notifications);
+
+                if (notifications.Count > 0)
                 {
-                    _context.Update(region);
-                    await _context.SaveChangesAsync();
+                    var msg = notifications[0];
+                    ModelState.AddModelError("", $"{msg.Title} - {msg.Description}");
+
+                    return View(model);
                 }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!RegionExists(region.RegionId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+
                 return RedirectToAction(nameof(Index));
             }
-            return View(region);
+            return View(model);
         }
 
         // GET: Admin/Region/Delete/5
@@ -126,30 +129,30 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var region = await _context.Regions
-                .FirstOrDefaultAsync(m => m.RegionId == id);
-            if (region == null)
+            var model = await repository.Get(id);
+
+            if (model == null)
             {
                 return NotFound();
             }
 
-            return View(region);
+            return View(model);
         }
 
         // POST: Admin/Region/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int? id)
         {
-            var region = await _context.Regions.FindAsync(id);
-            _context.Regions.Remove(region);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
+            if (id != null)
+            {
+                var model = await repository.Get(id);
+                model.State = Model.ModelState.Deleted;
 
-        private bool RegionExists(int id)
-        {
-            return _context.Regions.Any(e => e.RegionId == id);
+                await repository.Delete(model);
+            }
+
+            return RedirectToAction(nameof(Index));
         }
     }
 }

@@ -91,6 +91,11 @@ namespace Northwind.Store.Data
             return await db.FindAsync<T>(key);
         }
 
+        public virtual IEnumerable<T> GetAll()
+        {
+            return db.Set<T>().ToList();
+        }
+
         public virtual async Task<IEnumerable<T>> GetList(int? pageNumber, int pageSize)
         {
             var page = pageNumber ?? 1;

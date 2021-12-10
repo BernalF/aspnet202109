@@ -1,11 +1,9 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Northwind.Store.Data;
 using Northwind.Store.Model;
-using X.PagedList;
+using Northwind.Store.Notification;
 
 namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
 {
@@ -13,18 +11,19 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
     [Area("Admin")]
     public class ShipperController : Controller
     {
-        private readonly NwContext _context;
+        private readonly IRepository<Shipper> repository;
+        private readonly Notifications notifications = new();
 
-        public ShipperController(NwContext context)
+        public ShipperController(IRepository<Shipper> repository)
         {
-            _context = context;
+            this.repository = repository;
         }
 
         // GET: Admin/Shipper
         public async Task<IActionResult> Index(int? page)
         {
-            var pageNumber = page ?? 1; 
-            return View(await _context.Shippers.ToPagedListAsync(pageNumber, 5));
+            var pageNumber = page ?? 1;
+            return View(await repository.GetList(pageNumber, 5));
         }
 
         // GET: Admin/Shipper/Details/5
@@ -35,14 +34,14 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var shipper = await _context.Shippers
-                .FirstOrDefaultAsync(m => m.ShipperId == id);
-            if (shipper == null)
+            var model = await repository.Get(id);
+
+            if (model == null)
             {
                 return NotFound();
             }
 
-            return View(shipper);
+            return View(model);
         }
 
         // GET: Admin/Shipper/Create
@@ -56,15 +55,24 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ShipperId,CompanyName,Phone")] Shipper shipper)
+        public async Task<IActionResult> Create([Bind("ShipperId,CompanyName,Phone")] Shipper model)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(shipper);
-                await _context.SaveChangesAsync();
+                model.State = Model.ModelState.Added;
+                await repository.Save(model, notifications);
+
+                if (notifications.Count > 0)
+                {
+                    var msg = notifications[0];
+                    ModelState.AddModelError("", $"{msg.Title} - {msg.Description}");
+
+                    return View(model);
+                }
+
                 return RedirectToAction(nameof(Index));
             }
-            return View(shipper);
+            return View(model);
         }
 
         // GET: Admin/Shipper/Edit/5
@@ -75,12 +83,12 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var shipper = await _context.Shippers.FindAsync(id);
-            if (shipper == null)
+            var model = await repository.Get(id);
+            if (model == null)
             {
                 return NotFound();
             }
-            return View(shipper);
+            return View(model);
         }
 
         // POST: Admin/Shipper/Edit/5
@@ -88,34 +96,29 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ShipperId,CompanyName,Phone")] Shipper shipper)
+        public async Task<IActionResult> Edit(int id, [Bind("ShipperId,CompanyName,Phone")] Shipper model)
         {
-            if (id != shipper.ShipperId)
+            if (id != model.ShipperId)
             {
                 return NotFound();
             }
 
             if (ModelState.IsValid)
             {
-                try
+                model.State = Model.ModelState.Modified;
+                await repository.Save(model, notifications);
+
+                if (notifications.Count > 0)
                 {
-                    _context.Update(shipper);
-                    await _context.SaveChangesAsync();
+                    var msg = notifications[0];
+                    ModelState.AddModelError("", $"{msg.Title} - {msg.Description}");
+
+                    return View(model);
                 }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!ShipperExists(shipper.ShipperId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+
                 return RedirectToAction(nameof(Index));
             }
-            return View(shipper);
+            return View(model);
         }
 
         // GET: Admin/Shipper/Delete/5
@@ -126,30 +129,30 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var shipper = await _context.Shippers
-                .FirstOrDefaultAsync(m => m.ShipperId == id);
-            if (shipper == null)
+            var model = await repository.Get(id);
+
+            if (model == null)
             {
                 return NotFound();
             }
 
-            return View(shipper);
+            return View(model);
         }
 
         // POST: Admin/Shipper/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int? id)
         {
-            var shipper = await _context.Shippers.FindAsync(id);
-            _context.Shippers.Remove(shipper);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
+            if (id != null)
+            {
+                var model = await repository.Get(id);
+                model.State = Model.ModelState.Deleted;
 
-        private bool ShipperExists(int id)
-        {
-            return _context.Shippers.Any(e => e.ShipperId == id);
+                await repository.Delete(model);
+            }
+
+            return RedirectToAction(nameof(Index));
         }
     }
 }

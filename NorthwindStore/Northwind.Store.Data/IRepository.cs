@@ -16,6 +16,7 @@ namespace Northwind.Store.Data
         Task<int> Save(T model, Notifications n = null);
         Task<T> Get<TP>(TP key);
         Task<IEnumerable<T>> GetList(int? pageNumber, int pageSize);
+        IEnumerable<T> GetAll();
         Task<IEnumerable<T>> Find(Expression<Func<T,bool>> predicate);
         Task<int> Delete(T model);
     }

@@ -14,12 +14,10 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
     {
         private readonly IRepository<Employee> repository;
         private readonly Notifications notifications = new();
-        private readonly NwContext context;
 
-        public EmployeeController(IRepository<Employee> repository, NwContext context)
+        public EmployeeController(IRepository<Employee> repository)
         {
             this.repository = repository;
-            this.context = context;
         }
 
         // GET: Admin/Employee
@@ -50,7 +48,7 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
         // GET: Admin/Employee/Create
         public IActionResult Create()
         {
-            ViewData["ReportsTo"] = new SelectList(context.Employees, "EmployeeId", "FirstName");
+            ViewData["ReportsTo"] = new SelectList(repository.GetAll(), "EmployeeId", "FirstName");
             return View();
         }
 
@@ -76,7 +74,7 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
 
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ReportsTo"] = new SelectList(context.Employees, "EmployeeId", "FirstName", model.ReportsTo);
+            ViewData["ReportsTo"] = new SelectList(repository.GetAll(), "EmployeeId", "FirstName", model.ReportsTo);
             return View(model);
         }
 
@@ -93,7 +91,7 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
             {
                 return NotFound();
             }
-            ViewData["ReportsTo"] = new SelectList(context.Employees, "EmployeeId", "FirstName", model.ReportsTo);
+            ViewData["ReportsTo"] = new SelectList(repository.GetAll(), "EmployeeId", "FirstName", model.ReportsTo);
             return View(model);
         }
 
@@ -124,7 +122,7 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
 
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ReportsTo"] = new SelectList(context.Employees, "EmployeeId", "FirstName", model.ReportsTo);
+            ViewData["ReportsTo"] = new SelectList(repository.GetAll(), "EmployeeId", "FirstName", model.ReportsTo);
             return View(model);
         }
 
