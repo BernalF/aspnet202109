@@ -86,9 +86,17 @@ namespace Northwind.Store.Data
             return result;
         }
 
-        public virtual async Task<T> Get<TP>(TP key)
+        public virtual async Task<T> Get(Expression<Func<T, bool>> filter, string includeProperties = "")
         {
-            return await db.FindAsync<T>(key);
+            IQueryable<T> query = db.Set<T>();
+
+            foreach (var includeProperty in includeProperties.Split
+                         (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                query = query.Include(includeProperty);
+            }
+
+            return await query.FirstOrDefaultAsync(filter);
         }
 
         public virtual IEnumerable<T> GetAll()
@@ -96,10 +104,17 @@ namespace Northwind.Store.Data
             return db.Set<T>().ToList();
         }
 
-        public virtual async Task<IEnumerable<T>> GetList(int? pageNumber, int pageSize)
+        public virtual async Task<IEnumerable<T>> GetList(int? pageNumber, int pageSize, string includeProperties = "")
         {
+            IQueryable<T> query = db.Set<T>();
+
+            query = includeProperties
+                .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                .Aggregate(query, (current, includeProperty) => current.Include(includeProperty));
+
             var page = pageNumber ?? 1;
-            return await db.Set<T>().AsNoTracking().ToPagedListAsync(page, pageSize);
+
+            return await query.AsNoTracking().ToPagedListAsync(page, pageSize);
         }
 
         public virtual async Task<IEnumerable<T>> Find(Expression<Func<T, bool>> predicate)

@@ -14,8 +14,8 @@ namespace Northwind.Store.Data
     public interface IRepository<T> : IDisposable
     {
         Task<int> Save(T model, Notifications n = null);
-        Task<T> Get<TP>(TP key);
-        Task<IEnumerable<T>> GetList(int? pageNumber, int pageSize);
+        Task<T> Get(Expression<Func<T, bool>> filter, string includeProperties = "");
+        Task<IEnumerable<T>> GetList(int? pageNumber, int pageSize, string includeProperties = "");
         IEnumerable<T> GetAll();
         Task<IEnumerable<T>> Find(Expression<Func<T,bool>> predicate);
         Task<int> Delete(T model);

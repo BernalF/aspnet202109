@@ -14,18 +14,18 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
     [Area("Admin")]
     public class OrderDetailController : Controller
     {
-        private readonly NwContext _context;
+        private readonly NwContext context;
 
         public OrderDetailController(NwContext context)
         {
-            _context = context;
+            this.context = context;
         }
 
         // GET: Admin/OrderDetail
         public async Task<IActionResult> Index(int? page)
         {
             var pageNumber = page ?? 1; 
-            var nWContext = _context.OrderDetails.Include(o => o.Order).Include(o => o.Product);
+            var nWContext = context.OrderDetails.Include(o => o.Order).Include(o => o.Product);
             return View(await nWContext.ToPagedListAsync(pageNumber, 5));
         }
 
@@ -37,7 +37,7 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var orderDetail = await _context.OrderDetails
+            var orderDetail = await context.OrderDetails
                 .Include(o => o.Order)
                 .Include(o => o.Product)
                 .FirstOrDefaultAsync(m => m.OrderId == id);
@@ -52,8 +52,8 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
         // GET: Admin/OrderDetail/Create
         public IActionResult Create()
         {
-            ViewData["OrderId"] = new SelectList(_context.Orders, "OrderId", "OrderId");
-            ViewData["ProductId"] = new SelectList(_context.Products, "ProductId", "ProductName");
+            ViewData["OrderId"] = new SelectList(context.Orders, "OrderId", "OrderId");
+            ViewData["ProductId"] = new SelectList(context.Products, "ProductId", "ProductName");
             return View();
         }
 
@@ -66,12 +66,12 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(orderDetail);
-                await _context.SaveChangesAsync();
+                context.Add(orderDetail);
+                await context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["OrderId"] = new SelectList(_context.Orders, "OrderId", "OrderId", orderDetail.OrderId);
-            ViewData["ProductId"] = new SelectList(_context.Products, "ProductId", "ProductName", orderDetail.ProductId);
+            ViewData["OrderId"] = new SelectList(context.Orders, "OrderId", "OrderId", orderDetail.OrderId);
+            ViewData["ProductId"] = new SelectList(context.Products, "ProductId", "ProductName", orderDetail.ProductId);
             return View(orderDetail);
         }
 
@@ -83,13 +83,13 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var orderDetail = await _context.OrderDetails.FindAsync(id);
+            var orderDetail = await context.OrderDetails.FindAsync(id);
             if (orderDetail == null)
             {
                 return NotFound();
             }
-            ViewData["OrderId"] = new SelectList(_context.Orders, "OrderId", "OrderId", orderDetail.OrderId);
-            ViewData["ProductId"] = new SelectList(_context.Products, "ProductId", "ProductName", orderDetail.ProductId);
+            ViewData["OrderId"] = new SelectList(context.Orders, "OrderId", "OrderId", orderDetail.OrderId);
+            ViewData["ProductId"] = new SelectList(context.Products, "ProductId", "ProductName", orderDetail.ProductId);
             return View(orderDetail);
         }
 
@@ -109,8 +109,8 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
             {
                 try
                 {
-                    _context.Update(orderDetail);
-                    await _context.SaveChangesAsync();
+                    context.Update(orderDetail);
+                    await context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -125,8 +125,8 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["OrderId"] = new SelectList(_context.Orders, "OrderId", "OrderId", orderDetail.OrderId);
-            ViewData["ProductId"] = new SelectList(_context.Products, "ProductId", "ProductName", orderDetail.ProductId);
+            ViewData["OrderId"] = new SelectList(context.Orders, "OrderId", "OrderId", orderDetail.OrderId);
+            ViewData["ProductId"] = new SelectList(context.Products, "ProductId", "ProductName", orderDetail.ProductId);
             return View(orderDetail);
         }
 
@@ -138,7 +138,7 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var orderDetail = await _context.OrderDetails
+            var orderDetail = await context.OrderDetails
                 .Include(o => o.Order)
                 .Include(o => o.Product)
                 .FirstOrDefaultAsync(m => m.OrderId == id);
@@ -155,15 +155,15 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var orderDetail = await _context.OrderDetails.FindAsync(id);
-            _context.OrderDetails.Remove(orderDetail);
-            await _context.SaveChangesAsync();
+            var orderDetail = await context.OrderDetails.FindAsync(id);
+            context.OrderDetails.Remove(orderDetail);
+            await context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool OrderDetailExists(int id)
         {
-            return _context.OrderDetails.Any(e => e.OrderId == id);
+            return context.OrderDetails.Any(e => e.OrderId == id);
         }
     }
 }

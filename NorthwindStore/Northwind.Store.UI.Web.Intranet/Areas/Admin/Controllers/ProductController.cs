@@ -1,14 +1,12 @@
 ﻿using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using Northwind.Store.Data;
 using Northwind.Store.Model;
-using X.PagedList;
+using Northwind.Store.Notification;
 
 namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
 {
@@ -16,19 +14,23 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
     [Area("Admin")]
     public class ProductController : Controller
     {
-        private readonly NwContext _context;
+        private readonly IRepository<Product> repository;
+        private readonly IRepository<Category> categoryRepository;
+        private readonly IRepository<Supplier> supplierRepository;
+        private readonly Notifications notifications = new();
 
-        public ProductController(NwContext context)
+        public ProductController(IRepository<Product> repository, IRepository<Category> categoryRepository, IRepository<Supplier> supplierRepository)
         {
-            _context = context;
+            this.repository = repository;
+            this.categoryRepository = categoryRepository;
+            this.supplierRepository = supplierRepository;
         }
 
         // GET: Admin/Product
         public async Task<IActionResult> Index(int? page)
         {
-            var pageNumber = page ?? 1; 
-            var nWContext = _context.Products.Include(p => p.Category).Include(p => p.Supplier);
-            return View(await nWContext.ToPagedListAsync(pageNumber, 5));
+            var pageNumber = page ?? 1;
+            return View(await repository.GetList(pageNumber, 5, "Category,Supplier"));
         }
 
         // GET: Admin/Product/Details/5
@@ -39,23 +41,21 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var product = await _context.Products
-                .Include(p => p.Category)
-                .Include(p => p.Supplier)
-                .FirstOrDefaultAsync(m => m.ProductId == id);
-            if (product == null)
+            var model = await repository.Get(x => x.ProductId == id, "Category,Supplier");
+
+            if (model == null)
             {
                 return NotFound();
             }
 
-            return View(product);
+            return View(model);
         }
 
         // GET: Admin/Product/Create
         public IActionResult Create()
         {
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "CategoryId", "CategoryName");
-            ViewData["SupplierId"] = new SelectList(_context.Suppliers, "SupplierId", "CompanyName");
+            ViewData["CategoryId"] = new SelectList(categoryRepository.GetAll(), "CategoryId", "CategoryName");
+            ViewData["SupplierId"] = new SelectList(supplierRepository.GetAll(), "SupplierId", "CompanyName");
             return View();
         }
 
@@ -64,24 +64,35 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ProductId,ProductName,SupplierId,CategoryId,QuantityPerUnit,UnitPrice,Picture")] Product product, IFormFile picture)
+        public async Task<IActionResult> Create([Bind("ProductId,ProductName,SupplierId,CategoryId,QuantityPerUnit,UnitPrice,Picture")] Product model, IFormFile picture)
         {
             if (ModelState.IsValid)
             {
                 if (picture != null)
                 {
-                    await using MemoryStream ms = new MemoryStream();
+                    // using System.IO;
+                    await using MemoryStream ms = new();
                     await picture.CopyToAsync(ms);
-                    product.Picture = ms.ToArray();
+                    model.Picture = ms.ToArray();
                 }
 
-                await _context.Products.AddAsync(product);
-                await _context.SaveChangesAsync();
+                model.State = Model.ModelState.Added;
+                await repository.Save(model, notifications);
+
+                if (notifications.Count > 0)
+                {
+                    var msg = notifications[0];
+                    ModelState.AddModelError("", $"{msg.Title} - {msg.Description}");
+
+                    return View(model);
+                }
+
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "CategoryId", "CategoryName", product.CategoryId);
-            ViewData["SupplierId"] = new SelectList(_context.Suppliers, "SupplierId", "CompanyName", product.SupplierId);
-            return View(product);
+
+            ViewData["CategoryId"] = new SelectList(categoryRepository.GetAll(), "CategoryId", "CategoryName", model.CategoryId);
+            ViewData["SupplierId"] = new SelectList(supplierRepository.GetAll(), "SupplierId", "CompanyName", model.SupplierId);
+            return View(model);
         }
 
         // GET: Admin/Product/Edit/5
@@ -92,14 +103,16 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var product = await _context.Products.FindAsync(id);
-            if (product == null)
+            var model = await repository.Get(x => x.ProductId == id);
+            if (model == null)
             {
                 return NotFound();
             }
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "CategoryId", "CategoryName", product.CategoryId);
-            ViewData["SupplierId"] = new SelectList(_context.Suppliers, "SupplierId", "CompanyName", product.SupplierId);
-            return View(product);
+
+            ViewData["CategoryId"] = new SelectList(categoryRepository.GetAll(), "CategoryId", "CategoryName", model.CategoryId);
+            ViewData["SupplierId"] = new SelectList(supplierRepository.GetAll(), "SupplierId", "CompanyName", model.SupplierId);
+
+            return View(model);
         }
 
         // POST: Admin/Product/Edit/5
@@ -107,43 +120,33 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ProductId,ProductName,SupplierId,CategoryId,QuantityPerUnit,UnitPrice,UnitsInStock,UnitsOnOrder,ReorderLevel,Discontinued, Picture")] Product product, IFormFile picture)
+        public async Task<IActionResult> Edit(int id, [Bind("ProductId,ProductName,SupplierId,CategoryId,QuantityPerUnit,UnitPrice,UnitsInStock,UnitsOnOrder,ReorderLevel,Discontinued, Picture")] Product model, IFormFile picture)
         {
-            if (id != product.ProductId)
+            if (id != model.ProductId)
             {
                 return NotFound();
             }
 
             if (ModelState.IsValid)
             {
-                try
-                {
-                    if (picture != null)
-                    {
-                        await using MemoryStream ms = new MemoryStream();
-                        await picture.CopyToAsync(ms);
-                        product.Picture = ms.ToArray();
-                    }
+                model.State = Model.ModelState.Modified;
+                await repository.Save(model, notifications);
 
-                    _context.Update(product);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
+                if (notifications.Count > 0)
                 {
-                    if (!ProductExists(product.ProductId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    var msg = notifications[0];
+                    ModelState.AddModelError("", $"{msg.Title} - {msg.Description}");
+
+                    return View(model);
                 }
+
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "CategoryId", "CategoryName", product.CategoryId);
-            ViewData["SupplierId"] = new SelectList(_context.Suppliers, "SupplierId", "CompanyName", product.SupplierId);
-            return View(product);
+
+            ViewData["CategoryId"] = new SelectList(categoryRepository.GetAll(), "CategoryId", "CategoryName");
+            ViewData["SupplierId"] = new SelectList(supplierRepository.GetAll(), "SupplierId", "CompanyName");
+            
+            return View(model);
         }
 
         // GET: Admin/Product/Delete/5
@@ -154,47 +157,44 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var product = await _context.Products
-                .Include(p => p.Category)
-                .Include(p => p.Supplier)
-                .FirstOrDefaultAsync(m => m.ProductId == id);
-            if (product == null)
+            var model = await repository.Get(x => x.ProductId == id, "Category, Supplier");
+
+            if (model == null)
             {
                 return NotFound();
             }
 
-            return View(product);
+            return View(model);
         }
 
         // POST: Admin/Product/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int? id)
         {
-            var product = await _context.Products.FindAsync(id);
-            _context.Products.Remove(product);
-            await _context.SaveChangesAsync();
+            if (id != null)
+            {
+                var model = await repository.Get(x => x.ProductId == id);
+                model.State = Model.ModelState.Deleted;
+
+                await repository.Delete(model);
+            }
+
             return RedirectToAction(nameof(Index));
         }
 
-        private bool ProductExists(int id)
-        {
-            return _context.Products.Any(e => e.ProductId == id);
-        }
-
-        public async Task<FileStreamResult> ReadImage(int id)
+        public async Task<FileStreamResult> ReadImage(int? id)
         {
             FileStreamResult result = null;
 
-            var product = await _context.Products
-                .FirstOrDefaultAsync(m => m.ProductId == id);
-
-            if (product != null)
+            if (id != null)
             {
-                var stream = new MemoryStream(product.Picture);
+                var model = await repository.Get(x => x.ProductId == id);
 
-                if (stream != null)
+                if (model != null)
                 {
+                    var stream = new MemoryStream(model.Picture);
+
                     result = File(stream, "image/png");
                 }
             }

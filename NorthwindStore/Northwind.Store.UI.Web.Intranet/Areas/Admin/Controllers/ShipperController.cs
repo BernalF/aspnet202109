@@ -34,7 +34,7 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var model = await repository.Get(id);
+            var model = await repository.Get(x => x.ShipperId == id);
 
             if (model == null)
             {
@@ -83,7 +83,7 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var model = await repository.Get(id);
+            var model = await repository.Get(x => x.ShipperId == id);
             if (model == null)
             {
                 return NotFound();
@@ -129,7 +129,7 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var model = await repository.Get(id);
+            var model = await repository.Get(x => x.ShipperId == id);
 
             if (model == null)
             {
@@ -146,7 +146,7 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
         {
             if (id != null)
             {
-                var model = await repository.Get(id);
+                var model = await repository.Get(x => x.ShipperId == id);
                 model.State = Model.ModelState.Deleted;
 
                 await repository.Delete(model);

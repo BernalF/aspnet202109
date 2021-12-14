@@ -36,7 +36,7 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var model = await repository.Get(id.Value);
+            var model = await repository.Get(x => x.CategoryId == id);
 
             if (model == null)
             {
@@ -64,8 +64,8 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
                 if (picture != null)
                 {
                     // using System.IO;
-                    using MemoryStream ms = new();
-                    picture.CopyTo(ms);
+                    await using MemoryStream ms = new();
+                    await picture.CopyToAsync(ms);
                     model.Picture = ms.ToArray();
                 }
 
@@ -93,7 +93,7 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var model = await repository.Get(id.Value);
+            var model = await repository.Get(x => x.CategoryId == id);
             if (model == null)
             {
                 return NotFound();
@@ -139,7 +139,7 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var model = await repository.Get(id.Value);
+            var model = await repository.Get(x => x.CategoryId == id);
 
             if (model == null)
             {
@@ -156,7 +156,7 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
         {
             if (id != null)
             {
-                var model = await repository.Get(id.Value);
+                var model = await repository.Get(x => x.CategoryId == id);
                 model.State = Model.ModelState.Deleted;
 
                 await repository.Delete(model);
@@ -171,7 +171,7 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
 
             if (id != null)
             {
-                var model = await repository.Get(id.Value);
+                var model = await repository.Get(x => x.CategoryId == id);
 
                 if (model != null)
                 {
