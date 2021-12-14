@@ -1,30 +1,23 @@
 ﻿using System;
-using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using Northwind.Store.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
 using Northwind.Store.Model;
-using Northwind.Store.UI.Web.Internet.Settings;
 using X.PagedList;
 
 namespace Northwind.Store.UI.Web.Internet.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
-        private readonly SessionSettings _ss;
-        private readonly NwContext _context;
+        private readonly NwContext context;
         private readonly IMemoryCache memoryCache;
 
-        public HomeController(ILogger<HomeController> logger, SessionSettings ss, NwContext db, IMemoryCache memoryCache)
+        public HomeController(NwContext db, IMemoryCache memoryCache)
         {
-            _logger = logger;
-            _ss = ss;
-            _context = db;
+            context = db;
             this.memoryCache = memoryCache;
         }
 
@@ -84,7 +77,7 @@ namespace Northwind.Store.UI.Web.Internet.Controllers
                 return NotFound();
             }
 
-            var product = await _context.Products
+            var product = await context.Products
                 .Include(p => p.Category)
                 .Include(p => p.Supplier)
                 .FirstOrDefaultAsync(m => m.ProductId == id);
@@ -104,11 +97,11 @@ namespace Northwind.Store.UI.Web.Internet.Controllers
             
             if (filter != null)
             {
-                items = await _context.Products.Include(p => p.Category).Where(x => x.ProductName.Contains(filter)).ToPagedListAsync(pageNumber, 5);
+                items = await context.Products.Include(p => p.Category).Where(x => x.ProductName.Contains(filter)).ToPagedListAsync(pageNumber, 5);
             }
             else
             {
-                items = await _context.Products.Include(p => p.Category).ToPagedListAsync(pageNumber, 5);
+                items = await context.Products.Include(p => p.Category).ToPagedListAsync(pageNumber, 5);
             }
             return items;
         }
