@@ -129,6 +129,13 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
 
             if (ModelState.IsValid)
             {
+                if (picture != null)
+                {
+                    await using MemoryStream ms = new();
+                    await picture.CopyToAsync(ms);
+                    model.Picture = ms.ToArray();
+                }
+
                 model.State = Model.ModelState.Modified;
                 await repository.Save(model, notifications);
 
@@ -157,7 +164,7 @@ namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var model = await repository.Get(x => x.ProductId == id, "Category, Supplier");
+            var model = await repository.Get(x => x.ProductId == id, "Category,Supplier");
 
             if (model == null)
             {
