@@ -54,13 +54,17 @@ namespace Northwind.Store.UI.Web.Internet.Controllers
             ViewData["filter"] = searchString;
 
             var pageNumber = page ?? 1;
-            
+
+            if (memoryCache.Get(filter) != null)
+                ViewData["cached"] = "From Cache";
+
             if (!memoryCache.TryGetValue(filter, out IPagedList<Product> items))
             {
                 items = await GetDataFiltered(pageNumber, filter);
                 memoryCache.Set(filter, items, new MemoryCacheEntryOptions { SlidingExpiration = TimeSpan.FromSeconds(10) });
+                ViewData["cached"] = "From DB";
             }
-
+            
             var isAjax = Request.Headers["X-Requested-With"] == "XMLHttpRequest";
             if (isAjax)
             {

@@ -11,20 +11,20 @@ namespace Northwind.Store.UI.Web.Internet.Controllers
 {
     public class CartController : Controller
     {
-        private readonly NwContext _db;
+        private readonly NwContext db;
         private readonly SessionSettings sessionSettings;
         private readonly RequestSettings requestSettings;
 
         public CartController(NwContext db, SessionSettings sesSettings)
         {
-            _db = db;
+            this.db = db;
             sessionSettings = sesSettings;
             requestSettings = new RequestSettings(this);
         }
 
         public IActionResult Index()
         {
-            var productId = TempData[nameof(Product.ProductId)];
+            //var productId = TempData[nameof(Product.ProductId)];
             //var productName = TempData[nameof(Product.ProductName)];
             //TempData.Keep(nameof(Product.ProductName));
             //var productName = TempData.Peek(nameof(Product.ProductName));
@@ -37,11 +37,11 @@ namespace Northwind.Store.UI.Web.Internet.Controllers
             return View(sessionSettings.Cart);
         }
 
-        public ActionResult Add(int? id)
+       public IActionResult Add(int? id)
         {
             if (id.HasValue)
             {
-                var p = _db.Products.Find(id);
+                var p = db.Products.Find(id);
 
                 #region Session
                 var cart = sessionSettings.Cart;
@@ -60,7 +60,7 @@ namespace Northwind.Store.UI.Web.Internet.Controllers
                 #endregion
             }
 
-            return RedirectToAction(nameof(Index));
+            return View(sessionSettings.Cart);
         }
 
         public async Task<IActionResult> Buy(CartViewModel cartViewModels)
@@ -77,28 +77,30 @@ namespace Northwind.Store.UI.Web.Internet.Controllers
                 return RedirectToAction("Index");
             }
 
-            _db.Add(order);
-            await _db.SaveChangesAsync();
+            db.Add(order);
+            await db.SaveChangesAsync();
 
             // get order create and add items
-            var orderCreated = _db.Orders.Where(p => p.CustomerId == "QUEDE").OrderByDescending(p => p.OrderId).First();
+            var orderCreated = db.Orders.Where(p => p.CustomerId == "QUEDE").OrderByDescending(p => p.OrderId).First();
 
             //add products to order created 
             foreach (var item in items)
             {
-                var productDetails = new OrderDetail
+                if (item.UnitPrice != null)
                 {
-                    OrderId = orderCreated.OrderId,
-                    ProductId = item.ProductId,
-                    UnitPrice = (decimal) item.UnitPrice,
-                    Quantity = 0,
-                    Discount = 0
-                };
+                    var productDetails = new OrderDetail
+                    {
+                        OrderId = orderCreated.OrderId,
+                        ProductId = item.ProductId,
+                        UnitPrice = (decimal) item.UnitPrice,
+                        Quantity = 0,
+                        Discount = 0
+                    };
 
-                _db.Add(productDetails);
-                    
+                    db.Add(productDetails);
+                }
             }
-            await _db.SaveChangesAsync();
+            await db.SaveChangesAsync();
             sessionSettings.Cart = null;
 
             return RedirectToAction(nameof(Index));
