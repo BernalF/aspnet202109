@@ -88,7 +88,7 @@ namespace Northwind.Store.UI.Web.Intranet.Controllers
                 }
             }
 
-            return View("Index");
+            return Content("<h1>Auth Demo</h1>");
         }
 
         /// <summary>
@@ -121,7 +121,7 @@ namespace Northwind.Store.UI.Web.Intranet.Controllers
                 }
             }
 
-            return View("Index");
+            return Content("<h1>Auth Demo</h1>");
         }
 
         /// <summary>
@@ -148,7 +148,7 @@ namespace Northwind.Store.UI.Web.Intranet.Controllers
                 return new ForbidResult();
             }
 
-            return View("Index");
+            return Content("<h1>Auth Demo</h1>");
         }
     }
 }

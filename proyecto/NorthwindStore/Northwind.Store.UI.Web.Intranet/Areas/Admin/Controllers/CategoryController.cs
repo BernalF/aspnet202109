@@ -16,7 +16,11 @@ using Northwind.Store.UI.Web.Intranet.Filters;
 namespace Northwind.Store.UI.Web.Intranet.Areas.Admin.Controllers
 {
     [ResponseHeader("X-Northwind-Version", "1.0")]
-    [Authorize]
+    //[Authorize()]
+    //[Authorize(Roles = "Admin PowerUser")]
+    [Authorize(Policy = "ElevatedRights")]
+    [Authorize(Policy = "EmployeeOnly")]
+    [Authorize(Policy = "MayorDeEdad")]
     [Area("Admin")]
     public class CategoryController : Controller
     {
