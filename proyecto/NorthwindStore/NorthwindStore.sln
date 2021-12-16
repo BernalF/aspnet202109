@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31702.278
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31919.166
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Northwind.Store.UI.Shell", "Northwind.Store.UI.Shell\Northwind.Store.UI.Shell.csproj", "{51B70A55-01AA-46C7-BDCD-87F36F0F9F8D}"
 EndProject
@@ -13,13 +13,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Northwind.Store.UI.Web.Intr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Northwind.Store.Notification", "Northwind.Store.Notification\Northwind.Store.Notification.csproj", "{C2E0478E-180B-47A4-ACFB-810CDED6F961}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Northwind.Store.Services", "Northwind.Store.Services\Northwind.Store.Services.csproj", "{D672F2CB-83A7-4EC5-A96C-0AE6D49B7397}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Northwind.Store.Services", "Northwind.Store.Services\Northwind.Store.Services.csproj", "{D672F2CB-83A7-4EC5-A96C-0AE6D49B7397}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Northwind.Store.UI.Web.PWA.Server", "Northwind.Store.UI.Web.PWA\Server\Northwind.Store.UI.Web.PWA.Server.csproj", "{D910D99E-0FBD-4927-A2AA-FF6706A3D94E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Northwind.Store.UI.Web.PWA.Server", "Northwind.Store.UI.Web.PWA\Server\Northwind.Store.UI.Web.PWA.Server.csproj", "{D910D99E-0FBD-4927-A2AA-FF6706A3D94E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Northwind.Store.UI.Web.PWA.Client", "Northwind.Store.UI.Web.PWA\Client\Northwind.Store.UI.Web.PWA.Client.csproj", "{DA8A6D21-9F34-4B6D-B347-23B8F84519BF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Northwind.Store.UI.Web.PWA.Client", "Northwind.Store.UI.Web.PWA\Client\Northwind.Store.UI.Web.PWA.Client.csproj", "{DA8A6D21-9F34-4B6D-B347-23B8F84519BF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Northwind.Store.UI.Web.PWA.Shared", "Northwind.Store.UI.Web.PWA\Shared\Northwind.Store.UI.Web.PWA.Shared.csproj", "{76F9C9F1-5B39-4F39-B565-1653A29B74A7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Northwind.Store.UI.Web.PWA.Shared", "Northwind.Store.UI.Web.PWA\Shared\Northwind.Store.UI.Web.PWA.Shared.csproj", "{76F9C9F1-5B39-4F39-B565-1653A29B74A7}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Northwind.Store.UI.Web.Internet.SPA", "Northwind.Store.UI.Web.Internet.SPA\Northwind.Store.UI.Web.Internet.SPA.csproj", "{554EA447-8524-4E81-9ADD-713952B9E26F}"
 EndProject
